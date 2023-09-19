@@ -25,8 +25,8 @@ void get_opts(int argc,
         {"in", required_argument, NULL, 'i'},
         {"max_iter", required_argument, NULL, 'm'},
         {"threshold", required_argument, NULL, 't'},    
-        {"con_flag", no_argument, NULL, 'c'},
-        {"seed", required_argument, NULL, 's'}
+        {"seed", required_argument, NULL, 's'},
+        {"c_flag", no_argument, NULL, 'c'}
     };
 
     int ind, c;
