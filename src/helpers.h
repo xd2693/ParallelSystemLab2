@@ -1,9 +1,8 @@
 #pragma once
 
-#include "operators.h"
+
 #include <stdlib.h>
-#include <pthread.h>
-#include <my_barrier.h>
+
 
 
 struct kmeans_args_t {
