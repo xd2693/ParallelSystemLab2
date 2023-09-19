@@ -6,10 +6,10 @@
 #include <fstream>
 
 void read_file(struct options_t* args,
-               int*              n_vals,
+               int*                 n_vals,
                double**             input_vals,
                int**             	labels,
-			   double**             clusters);
+			   double**             centers);
 
 /*void write_file(struct options_t*         args,
                 struct prefix_sum_args_t* opts);*/

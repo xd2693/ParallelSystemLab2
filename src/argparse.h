@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <iostream>
 
-struct options_t {      
+struct options_t {  
     int n_cluster;
     int dims;
     char *in_file; 
