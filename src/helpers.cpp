@@ -4,7 +4,7 @@ prefix_sum_args_t* alloc_args(int n_threads) {
   return (prefix_sum_args_t*) malloc(n_threads * sizeof(prefix_sum_args_t));
 }
 
-int next_power_of_two(int x) {
+/*int next_power_of_two(int x) {
     int pow = 1;
     while (pow < x) {
         pow *= 2;
@@ -27,4 +27,4 @@ void fill_args(prefix_sum_args_t *args,
         args[i] = {inputs, outputs, sum_offsets, spin, n_vals,
                    n_threads, i, op, n_loops, barrier, counter_barrier};
     }
-}
+}*/

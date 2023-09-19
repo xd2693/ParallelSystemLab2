@@ -11,7 +11,7 @@ void read_file(struct options_t* args,
                int**             	labels,
 			   double**             clusters);
 
-void write_file(struct options_t*         args,
-                struct prefix_sum_args_t* opts);
+/*void write_file(struct options_t*         args,
+                struct prefix_sum_args_t* opts);*/
 
 #endif

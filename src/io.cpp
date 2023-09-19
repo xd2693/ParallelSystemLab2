@@ -24,7 +24,7 @@ void read_file(struct options_t* args,
 	}
 }
 
-void write_file(struct options_t*         args,
+/*void write_file(struct options_t*         args,
                	struct prefix_sum_args_t* opts) {
   // Open file
 	std::ofstream out;
@@ -41,4 +41,4 @@ void write_file(struct options_t*         args,
 	// Free memory
 	free(opts->input_vals);
 	free(opts->output_vals);
-}
+}*/

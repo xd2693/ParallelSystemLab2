@@ -18,7 +18,7 @@ struct kmeans_args_t {
 
 prefix_sum_args_t* alloc_args(int n_threads);
 
-int next_power_of_two(int x);
+/*int next_power_of_two(int x);
 
 void fill_args(prefix_sum_args_t *args,
                int n_threads,
@@ -31,3 +31,4 @@ void fill_args(prefix_sum_args_t *args,
                int n_loops,
                pthread_barrier_t *barrier,
                my_barrier *counter_barrier);
+               */
