@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 
-
+/*
 struct kmeans_args_t {
   int*               input_vals;
   int                n_cluster;
@@ -15,7 +15,7 @@ struct kmeans_args_t {
   int                seed;
   
 };
-
+*/
 prefix_sum_args_t* alloc_args(int n_threads);
 
 /*int next_power_of_two(int x);

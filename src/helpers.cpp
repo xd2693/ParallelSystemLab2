@@ -1,9 +1,11 @@
 #include "helpers.h"
 
+
+/*
 prefix_sum_args_t* alloc_args(int n_threads) {
   return (prefix_sum_args_t*) malloc(n_threads * sizeof(prefix_sum_args_t));
 }
-
+*/
 /*int next_power_of_two(int x) {
     int pow = 1;
     while (pow < x) {
