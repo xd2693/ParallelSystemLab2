@@ -17,7 +17,7 @@ int main(int argc, char **argv){
     read_file(&opts, &n_vals, &input_vals, &labels, &centers);
     struct kmeans_args args;
     fill_kmeans_args(&args, opts.n_cluster, n_vals, opts.dims, opts.max_iter, opts.threshold, input_vals,
-                     centers, labels)
+                     centers, labels);
 
     //printf("%12f ",input_vals[100]);
     random_centers(opts.seed, &args);

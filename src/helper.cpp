@@ -1,5 +1,6 @@
 #include "io.h"
 #include "argparse.h"
+#include "helper.h"
 
 void fill_kmeans_args(kmeans_args *args,
                       int         n_cluster,
@@ -11,8 +12,8 @@ void fill_kmeans_args(kmeans_args *args,
                       double      *centers,
                       int         *labels){
 
-    args={n_cluster, n_vals, dims, max_iter, threshold,
-          input_vals, centers, labels}
+    *args={n_cluster, n_vals, dims, max_iter, threshold,
+          input_vals, centers, labels};
 }
 
 static unsigned long int next = 1;
@@ -36,7 +37,7 @@ void random_centers(int seed, kmeans_args *args) {
         printf("\n index= %d\n",index);
         for (int j=0; j< args->dims; j++){
             args->centers[in] = args->input_vals[my_index+j];
-            printf("\t centers= %.12f",centers[in]);
+            printf("\t centers= %.12f",args->centers[in]);
             in++;
         }
         

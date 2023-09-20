@@ -1,16 +1,13 @@
 #include "io.h"
 #include "argparse.h"
+#include "helper.h"
 #include <math.h>
 
-double distance(int      dims, 
-                int      input_index,
-                int      center_index,
-                double*  input_vals,
-                double*  centers){
+double distance(kmeans_args *args, int input_index, int center_index){
     
     double sum = 0.0;
-    for (int i =0; i<dims; i++){
-        sum+= pow((input_vals[input_index+i]-centers[center_index+i]),2)
+    for (int i =0; i<args->dims; i++){
+        sum+= pow((args->input_vals[input_index+i]-args->Scenters[center_index+i]),2)
     }
     return sqrt(sum)
 
