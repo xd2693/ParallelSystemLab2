@@ -40,7 +40,7 @@ void read_file(struct options_t* args,
 		if (j >= args->dims){//
 			j = 0;
 		}
-		printf("%.12f\n", (*input_vals)[i]);
+		//printf("%.12f\n", (*input_vals)[i]);
 	}
 	
 }

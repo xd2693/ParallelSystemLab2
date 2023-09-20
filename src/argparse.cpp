@@ -30,7 +30,7 @@ void get_opts(int argc,
     };
 
     int ind, c;
-    while ((c = getopt_long(argc, argv, "k:d:i:m:t:c:s", l_opts, &ind)) != -1)
+    while ((c = getopt_long(argc, argv, "k:d:i:m:t:cs:", l_opts, &ind)) != -1)
     {
         switch (c)
         {
@@ -55,9 +55,11 @@ void get_opts(int argc,
             opts->c_flag = true;
             break;
         case 's':
+            //printf("Reached s %s\n", (char *)optarg);
             opts->seed = atoi((char *)optarg);
             break;
         case ':':
+            exit(1);
             std::cerr << argv[0] << ": option -" << (char)optopt << "requires an argument." << std::endl;
             exit(1);
         }

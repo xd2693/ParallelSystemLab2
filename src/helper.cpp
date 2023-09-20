@@ -15,16 +15,19 @@ void random_centers(int        seed,
                     int        n_cluster,
                     int        n_vals,
                     int        dims,
-                    double**   centers,
-                    double**   input_vals) {
+                    double*    centers,
+                    double*    input_vals) {
     kmeans_srand(seed); // cmd_seed is a cmdline arg
     int in=0;
     for (int i=0; i<n_cluster; i++){
-        int index = (kmeans_rand() % n_vals) * dims;
+        int index = (kmeans_rand() % n_vals);
         // you should use the proper implementation of the following
         // code according to your data structure
-        for (int j=0, j<dims; j++){
-            (*centers)[in] = (*input_vals) [index+j];
+        int my_index= index * dims;
+        printf("\n index= %d\n",index);
+        for (int j=0; j<dims; j++){
+            centers[in] = input_vals[my_index+j];
+            printf("\t centers= %.12f",centers[in]);
             in++;
         }
         
