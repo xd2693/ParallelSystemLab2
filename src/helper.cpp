@@ -27,20 +27,35 @@ void kmeans_srand(unsigned int seed) {
 }
 
 void random_centers(int seed, kmeans_args *args) {
-    kmeans_srand(seed); // cmd_seed is a cmdline arg
+    kmeans_srand(seed); 
     int in=0;
     for (int i=0; i<args->n_cluster; i++){
         int index = (kmeans_rand() % args->n_vals);
-        // you should use the proper implementation of the following
-        // code according to your data structure
+
         int my_index= index * args->dims;
         printf("\n index= %d\n",index);
         for (int j=0; j< args->dims; j++){
             args->centers[in] = args->input_vals[my_index+j];
-            printf("\t centers= %.12f",args->centers[in]);
+            //printf("\t centers= %.12f",args->centers[in]);
             in++;
         }
         
+    }
+}
+
+void output(kmeans_args *args, bool c_flag){
+    if(c_flag){
+        for (int clusterId = 0; clusterId < args->n_cluster; clusterId ++){
+            printf("%d ", clusterId);
+            for (int d = 0; d < args->dims; d++)
+                printf("%lf ", centers[clusterId * args->dims + d ]);
+            printf("\n");
+        }
+    }
+    else{
+        printf("cluster:");
+        for (int p=0; p < args->n_vals; p++)
+            printf(" %d", args->labels[p]);
     }
 }
 

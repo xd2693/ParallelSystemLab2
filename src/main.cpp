@@ -2,15 +2,16 @@
 #include "argparse.h"
 #include "io.h"
 #include "helper.h"
+#include "kmeans.h"
 
 int main(int argc, char **argv){
 
     // Parse args
     struct options_t opts;
-    printf("%d args\n",argc);
+    //printf("%d args\n",argc);
     get_opts(argc, argv, &opts);
-    printf("d=%d, k=%d, m=%d, t=%f, s=%d, c=%d\n",opts.dims, opts.n_cluster, opts.max_iter, opts.threshold, opts.seed, opts.c_flag);
-    printf("Last arg is %s", argv[argc-1]);
+    //printf("d=%d, k=%d, m=%d, t=%f, s=%d, c=%d\n",opts.dims, opts.n_cluster, opts.max_iter, opts.threshold, opts.seed, opts.c_flag);
+    //printf("Last arg is %s", argv[argc-1]);
     double *input_vals, *centers;
     int *labels;
     int n_vals;
@@ -21,6 +22,10 @@ int main(int argc, char **argv){
 
     //printf("%12f ",input_vals[100]);
     random_centers(opts.seed, &args);
+
+    kmeans_cpu(&args);
+
+    output(&args, opts.c_flag);
 
     
     return 0;

@@ -29,4 +29,6 @@ void fill_kmeans_args(kmeans_args *args,
                       double      *input_vals,
                       double      *centers,
                       int         *labels);
+
+void output(kmeans_args *args, bool c_flag);
 #endif                    
