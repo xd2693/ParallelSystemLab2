@@ -1,6 +1,6 @@
 #include "kmeans.h"
 
-//get distance between input and center
+//get distance between input and centroid
 double get_distance(kmeans_args* args, 
                 int          input_index,
                 int          center_index){
@@ -57,10 +57,22 @@ bool test_converge(kmeans_args* args, double* new_centers){
 }
 
 void kmeans_cpu(kmeans_args* args){
+    double *new_centers;
+    int size = (args->dims) * (args->n_cluster) * sizeof(double);
+    new_centers = (double*) malloc(size);
     for (int i = 0; i <= args->max_iter; i++){
+        menset(new_centers, 0, sizeof(size));
         //set label for each point
         for (int j =0; j < args->n_vals; j++){
-            label[j] = get_label()
+            label[j] = get_label(args, j);
+        }
+
+        //compute new centroids
+        get_new_centers(kmeans_args* args, new_centers);
+
+        //convergence test
+        if(test_converge(args,new_centers)){
+            break;
         }
     }
 }
