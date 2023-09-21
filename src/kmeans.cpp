@@ -1,19 +1,19 @@
 #include "kmeans.h"
 
 //get distance between input and centroid
-double get_distance(kmeans_args* args, 
+double get_distance(kmeans_args *args, 
                 int          input_index,
                 int          center_index){
     
     double sum = 0.0;
     for (int i = 0; i < args->dims; i++){
-        sum+= pow((args->input_vals[input_index+i]-args->centers[center_index+i]),2)
+        sum+= pow((args->input_vals[input_index+i]-args->centers[center_index+i]),2);
     }
-    return sqrt(sum)
+    return sqrt(sum);
 }
 
 //set label for the point of index
-int get_label (kmeans_args* args, int index){
+int get_label (kmeans_args *args, int index){
     double distance = DBL_MAX;
     double temp = DBL_MAX;
     int label = 0;
@@ -27,28 +27,31 @@ int get_label (kmeans_args* args, int index){
     return label;
 }
 
-void get_new_centers(kmeans_args* args, double* new_centers){
-    int n_points[args->n_cluster]={}; //count how many points in each cluster
-    for (int i = 0; i < args->n_vals; i++){
+void get_new_centers(kmeans_args *args, double* new_centers){
+    int n_cluster = args->n_cluster;
+    int n_vals = args->n_vals;
+    int dims = args->dims;
+    int n_points[n_cluster]={}; //count how many points in each cluster
+    for (int i = 0; i < n_vals; i++){
         int center = args->labels[i];
         n_points[center] ++;
-        for (int j = 0; j < args->dims; j++){
-            int p_index = i * args->dims + j;
+        for (int j = 0; j < dims; j++){
+            int p_index = i * dims + j;
             new_centers[center+j]+= args->input_vals[p_index];            
         }
     }
-    for (int i = 0; i < args->n_cluster; i++){
-        for (int j = 0; j < args->dims; j++){
-            int index = i * dim + j;
-            new_centers[index] = new_centers / n_points[i];
+    for (int i = 0; i < n_cluster; i++){
+        for (int j = 0; j < dims; j++){
+            int index = i * dims + j;
+            new_centers[index] = new_centers[index] / n_points[i];
         }
     }
 }
 
-bool test_converge(kmeans_args* args, double* new_centers){
+bool test_converge(kmeans_args *args, double *new_centers){
     bool converge = true;
     for (int i = 0; i < sizeof(new_centers); i++){
-        if (fabs(new_centers[i] - args->centers[i]) > args->threshold){
+        if (fabs(new_centers[i] - args->centers[i]) > (args->threshold)){
             converge = false;
             args->centers[i] = new_centers[i];
         }
@@ -56,19 +59,19 @@ bool test_converge(kmeans_args* args, double* new_centers){
     return converge;
 }
 
-void kmeans_cpu(kmeans_args* args){
+void kmeans_cpu(kmeans_args *args){
     double *new_centers;
     int size = (args->dims) * (args->n_cluster) * sizeof(double);
     new_centers = (double*) malloc(size);
     for (int i = 0; i <= args->max_iter; i++){
-        menset(new_centers, 0, sizeof(size));
+        memset(new_centers, 0, sizeof(size));
         //set label for each point
         for (int j =0; j < args->n_vals; j++){
-            label[j] = get_label(args, j);
+            args->labels[j] = get_label(args, j);
         }
 
         //compute new centroids
-        get_new_centers(kmeans_args* args, new_centers);
+        get_new_centers(args, new_centers);
 
         //convergence test
         if(test_converge(args,new_centers)){

@@ -12,7 +12,7 @@ void read_file(struct options_t* args,
 	in.open(args->in_file);
 	// Get num vals
 	in >> *n_vals;
-	printf("n_vals=%d dims=%d ",*n_vals, args->dims);
+	//printf("n_vals=%d dims=%d ",*n_vals, args->dims);
 
 	// Alloc input and lables and clusters arrays
 	size_t input_vals_size = (*n_vals) * (args->dims);
@@ -30,7 +30,7 @@ void read_file(struct options_t* args,
 	for (int i = 0; i< input_vals_size; ++i) {//*n_vals * args->dims
 		if(j == 0){
 			in >> temp;
-			printf("temp=%5.2f\n",temp);			
+			//printf("temp=%5.2f\n",temp);			
 		}
 			
 		in >> (*input_vals)[i];

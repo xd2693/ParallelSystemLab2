@@ -33,7 +33,7 @@ void random_centers(int seed, kmeans_args *args) {
         int index = (kmeans_rand() % args->n_vals);
 
         int my_index= index * args->dims;
-        printf("\n index= %d\n",index);
+        //printf("\n index= %d\n",index);
         for (int j=0; j< args->dims; j++){
             args->centers[in] = args->input_vals[my_index+j];
             //printf("\t centers= %.12f",args->centers[in]);
@@ -44,11 +44,14 @@ void random_centers(int seed, kmeans_args *args) {
 }
 
 void output(kmeans_args *args, bool c_flag){
+    
     if(c_flag){
-        for (int clusterId = 0; clusterId < args->n_cluster; clusterId ++){
+        int n = args->n_cluster;
+        int dims = args->dims;
+        for (int clusterId = 0; clusterId < n; clusterId ++){
             printf("%d ", clusterId);
-            for (int d = 0; d < args->dims; d++)
-                printf("%lf ", centers[clusterId * args->dims + d ]);
+            for (int d = 0; d < dims; d++)
+                printf("%lf ", args->centers[clusterId * dims + d ]);
             printf("\n");
         }
     }
