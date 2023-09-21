@@ -16,7 +16,7 @@ void read_file(struct options_t* args,
 
 	// Alloc input and lables and clusters arrays
 	size_t input_vals_size = (*n_vals) * (args->dims);
-	size_t labels_size = *n_vals * sizeof(int);
+	size_t labels_size = (*n_vals) * sizeof(int);
 	size_t centers_size = args->n_cluster * args->dims * sizeof(double);
 	*input_vals = (double*) malloc(input_vals_size * sizeof(double));
 	*labels = (int*) malloc(input_vals_size);
