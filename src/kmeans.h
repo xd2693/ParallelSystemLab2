@@ -14,9 +14,9 @@ double get_distance(kmeans_args *args,
 
 int get_label (kmeans_args *args, int index);
 
-void get_new_centers(kmeans_args *args, double *new_centers);
+void get_new_centers(kmeans_args *args);
 
-bool test_converge(kmeans_args *args, double *new_centers);
+bool test_converge(kmeans_args *args, double *old_centers);
 
 void kmeans_cpu(kmeans_args *args);
 #endif
