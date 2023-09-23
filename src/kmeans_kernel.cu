@@ -2,12 +2,13 @@
 
 __global__ void get_label(double *input_vals_c, 
                          double *centers_c, 
-                         int    *label,
+                         int    *labels_c,
                          int    dims,
                          int    n_vals,
                          int    n_cluster,
-                         double *temp_centers_c){
-    /*int index = threadIdx.x + blockIdx.x * blockDim.x;
+                         double *temp_centers_c,
+                         int *n_points_c){
+    int index = threadIdx.x + blockIdx.x * blockDim.x;
     int array_index = index * dims;
     if (index < n_vals){
         
@@ -21,16 +22,20 @@ __global__ void get_label(double *input_vals_c,
             temp = sqrt(sum);
             if (temp < distance)
                 distance = temp;
-                label[index] = i;
+                labels_c[index] = i;
+                
         }
-    __syncthreads();
+        
 
-    int center_index = label[index];
-    for (int i = 0; i < dims; i++){
-        temp_centers_c[center_index+j]+= input_vals_c[array_index+i];
+        int center_index = labels_c[index];
+        
+        atomicAdd(&n_points_c[center_index], 1);
+        for (int i = 0; i < dims; i++){
+            //temp_centers_c[center_index+j]+= input_vals_c[array_index+i];
+            atomicAdd(&temp_centers_c[center_index*dims+i], input_vals_c[array_index+i]);  
+                  
+        }
 
-    }
-
-    } */
+    } 
 }
 

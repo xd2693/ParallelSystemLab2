@@ -47,10 +47,11 @@ void get_new_centers(kmeans_args *args){
         }
     }
     for (int i = 0; i < n_cluster; i++){
+        if (n_points[i] == 0)
+            continue;
         for (int j = 0; j < dims; j++){
             int index = i * dims + j;
-            if (n_points[i] != 0)
-                args->centers[index] = (new_centers[index]) / n_points[i];
+            args->centers[index] = (new_centers[index]) / n_points[i];
             //printf("test1: %lf  ",args->centers[index]);
         }
     }
