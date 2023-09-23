@@ -1,7 +1,7 @@
 #include "io.h"
 #include "argparse.h"
 #include "helper.h"
-#include <cuda_runtime.h>
+#include "cuda_runtime.h"
 
 int main(int argc, char **argv){
     // Parse args
@@ -25,13 +25,15 @@ int main(int argc, char **argv){
     int *labels_c;
     int *n_points;//points count for each centroids
     double *old_centers_c, temp_centers_c;
-    cudaMalloc((double**)&input_vals_c, n_vals * opts.dims * sizeof(double));
-    cudaMalloc((double**)&centers_c, opts.n_cluster * opts.dims * sizeof(double));
+    int input_size = n_vals * opts.dims * sizeof(double);
+    int centers_size = opts.n_cluster * opts.dims * sizeof(double);
+    cudaMalloc((double**)&input_vals_c, input_size);
+    cudaMalloc((double**)&centers_c, centers_size);
     cudaMalloc((int**)&labels_c, opts.n_cluster * sizeof(int));
     cudaMalloc((int**)&n_points, opts.n_cluster * sizeof(int));
 
-    cudaMemcpy(input_vals_c, input_vals, cudaMemcpyHostToDevice);
-    cudaMemcpy(centers_c, centers, cudaMemcpyHostToDevice);
+    cudaMemcpy(input_vals_c, input_vals, input_size, cudaMemcpyHostToDevice);
+    cudaMemcpy(centers_c, centers, centers_size, cudaMemcpyHostToDevice);
 
     int iDev = 0;
     cudaDeviceProp iProp;
@@ -44,7 +46,7 @@ int main(int argc, char **argv){
     iProp.sharedMemPerBlock/1024.0);
     printf("Total number of registers available per block: %d\n",
     iProp.regsPerBlock);
-    printf("Warp size%d\n", deviceProp.warpSize);
+    printf("Warp size%d\n", iProp.warpSize);
     printf("Maximum number of threads per block: %d\n", iProp.maxThreadsPerBlock);
     printf("Maximum number of threads per multiprocessor: %d\n", iProp.maxThreadsPerMultiProcessor);
     printf("Maximum number of warps per multiprocessor: %d\n",

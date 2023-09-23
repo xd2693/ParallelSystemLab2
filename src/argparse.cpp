@@ -1,4 +1,4 @@
-#include <argparse.h>
+#include "argparse.h"
 
 void get_opts(int argc,
               char **argv,

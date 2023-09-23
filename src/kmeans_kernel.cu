@@ -1,13 +1,13 @@
-#include <cmath.h>
+#include <cmath>
 
-__global__void get_label(double *input_vals_c, 
+__global__ void get_label(double *input_vals_c, 
                          double *centers_c, 
                          int    *label,
                          int    dims,
                          int    n_vals,
                          int    n_cluster,
                          double *temp_centers_c){
-    int index = threadIdx.x + blockIdx.x * blockDim.x;
+    /*int index = threadIdx.x + blockIdx.x * blockDim.x;
     int array_index = index * dims;
     if (index < n_vals){
         
@@ -31,7 +31,6 @@ __global__void get_label(double *input_vals_c,
 
     }
 
-    }
+    } */
 }
 
-__global__void 
