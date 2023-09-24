@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 #include "argparse.h"
 #include "io.h"
 #include "helper.h"
@@ -22,8 +23,21 @@ int main(int argc, char **argv){
 
     //printf("%12f ",input_vals[100]);
     random_centers(opts.seed, &args);
+    int iter=0;
 
-    kmeans_cpu(&args);
+    // Start timer
+    auto start = std::chrono::high_resolution_clock::now();
+    /*timing_device total_time;
+    total_time.start_timing();*/
+
+    iter = kmeans_cpu(&args);
+
+    //End timer and print out elapsed
+    auto end = std::chrono::high_resolution_clock::now();
+    auto diff = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    //total_time.end_timing();
+
+    printf("%d,%lf\n", iter+1, (double)(diff.count()/(iter+1)));
 
     output(&args, opts.c_flag);
 

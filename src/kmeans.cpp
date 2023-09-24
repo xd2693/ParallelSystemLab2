@@ -69,7 +69,7 @@ bool test_converge(kmeans_args *args, double *old_centers){
     return converge;
 }
 
-void kmeans_cpu(kmeans_args *args){
+int kmeans_cpu(kmeans_args *args){
     double *old_centers;
     int size = (args->dims) * (args->n_cluster) * sizeof(double);
     old_centers = (double*) malloc(size);
@@ -87,8 +87,9 @@ void kmeans_cpu(kmeans_args *args){
         //convergence test
         if(test_converge(args,old_centers)){
             //printf("iter= %d\n", i);
-            break;
+            return i;
         }
         //printf("centers2 : %lf\n", args->centers[7*args->dims]);
     }
+    return args->max_iter;
 }

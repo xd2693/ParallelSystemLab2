@@ -4,6 +4,7 @@
 #include "argparse.h"
 #include <iostream>
 #include <fstream>
+#include <chrono>
 
 void read_file(struct options_t* args,
                int*                 n_vals,
@@ -11,7 +12,22 @@ void read_file(struct options_t* args,
                int**             	labels,
 			   double**             centers);
 
-/*void write_file(struct options_t*         args,
-                struct prefix_sum_args_t* opts);*/
+/*struct timing_device {
+    auto start, end;
+    uint64_t elapsed_time {0};
+    uint64_t last_start;
+    void start_timing() {
+        start = std::chrono::high_resolution_clock::now();
+        //last_start = std::chrono::duration_cast<std::chrono::microseconds>(now).count();
+    }
+    void end_timing() {
+        end = std::chrono::high_resolution_clock::now();
+        auto diff = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+        elapsed_time += diff.count();
+    }
+    void show_time() {
+        printf("%lu passed\n", elapsed_time);
+    }
+};*/
 
 #endif

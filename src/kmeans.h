@@ -18,5 +18,5 @@ void get_new_centers(kmeans_args *args);
 
 bool test_converge(kmeans_args *args, double *old_centers);
 
-void kmeans_cpu(kmeans_args *args);
+int kmeans_cpu(kmeans_args *args);
 #endif

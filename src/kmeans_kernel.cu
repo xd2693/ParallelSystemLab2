@@ -1,4 +1,4 @@
-#include <cmath>
+#include "kmeans_kernel.cuh"
 
 __global__ void get_label(double *input_vals_c, 
                          double *centers_c, 
@@ -20,14 +20,17 @@ __global__ void get_label(double *input_vals_c,
                 sum+=pow((input_vals_c[array_index+j] - centers_c[i*dims+j]), 2);
             }
             temp = sqrt(sum);
-            if (temp < distance)
+            if (temp < distance){
                 distance = temp;
                 labels_c[index] = i;
+            }
+                
                 
         }
         
 
         int center_index = labels_c[index];
+        //printf("label:%d\n",center_index);
         
         atomicAdd(&n_points_c[center_index], 1);
         for (int i = 0; i < dims; i++){
@@ -37,5 +40,27 @@ __global__ void get_label(double *input_vals_c,
         }
 
     } 
+}
+
+void wrapper_get_label(double *input_vals_c, 
+                         double *centers_c, 
+                         int    *labels_c,
+                         int    dims,
+                         int    n_vals,
+                         int    n_cluster,
+                         double *temp_centers_c,
+                         int *n_points_c,
+                         int blocks,
+                         int threads)
+{
+    get_label<<<blocks, threads>>>(input_vals_c,
+                                   centers_c,
+                                   labels_c,
+                                   dims,
+                                   n_vals,
+                                   n_cluster,
+                                   temp_centers_c,
+                                   n_points_c);
+
 }
 
