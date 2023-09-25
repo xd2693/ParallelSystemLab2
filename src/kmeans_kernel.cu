@@ -148,6 +148,7 @@ void wrapper_get_label_shared(double *input_vals_c,
     get_label_shared<<<blocks, threads, shared_size_needed>>>
                     (input_vals_c,
                      centers_c,
+                     labels_c,
                      dims,
                      n_vals,
                      n_cluster,
