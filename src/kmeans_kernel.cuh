@@ -51,8 +51,9 @@ void wrapper_get_label_shmem(double *input_vals_c,
                          int    n_vals,
                          int    n_cluster,
                          double *temp_centers_c,
-                         int *n_points_c);
-
+                         int *n_points_c,
+                         int threads);
+                         
 __global__ void get_label_shmem(double *input_vals_c, 
                          double *centers_c, 
                          int    *labels_c,

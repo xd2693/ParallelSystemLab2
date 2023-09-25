@@ -5,7 +5,7 @@
 #include <math.h>
 #include "kmeans_kernel.cuh"
 
-#define THREAD_PER_BLOCK 512
+#define THREAD_PER_BLOCK 128
 
 static unsigned long int next = 1;
 static unsigned long kmeans_rmax = 32767;
@@ -162,7 +162,8 @@ int main(int argc, char **argv){
                           n_vals,
                           opts.n_cluster,
                           temp_centers_c,
-                          n_points_c);
+                          n_points_c,
+                          THREAD_PER_BLOCK);
 
     cudaDeviceSynchronize();
     cudaMemcpy(input_vals, input_vals_c, input_size, cudaMemcpyDeviceToHost);
