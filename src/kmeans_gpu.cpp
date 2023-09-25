@@ -195,7 +195,7 @@ int main(int argc, char **argv){
                                                                        opts.n_cluster,
                                                                        temp_centers_c,
                                                                        n_points_c);*/
-        wrapper_get_label(input_vals_c, 
+        /*wrapper_get_label(input_vals_c, 
                           centers_c,
                           labels_c,
                           opts.dims,
@@ -204,8 +204,19 @@ int main(int argc, char **argv){
                           temp_centers_c,
                           n_points_c,
                           (n_vals+THREAD_PER_BLOCK-1)/THREAD_PER_BLOCK,
-                          THREAD_PER_BLOCK);
-                        
+                          THREAD_PER_BLOCK);*/
+        
+        wrapper_get_label_shared(input_vals_c, 
+                          centers_c,
+                          labels_c,
+                          opts.dims,
+                          n_vals,
+                          opts.n_cluster,
+                          temp_centers_c,
+                          n_points_c,
+                          40,
+                          256);
+
         cudaDeviceSynchronize();
         //printf("after sync\n");
 

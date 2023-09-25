@@ -65,7 +65,8 @@ void wrapper_get_label(double *input_vals_c,
 }
 
 __global__ void get_label_shared(double *input_vals_c, 
-                         double *centers_c, 
+                         double *centers_c,
+                         int    *labels_c,
                          int    dims,
                          int    n_vals,
                          int    n_cluster,
@@ -82,7 +83,7 @@ __global__ void get_label_shared(double *input_vals_c,
     int my_local_tid = threadIdx.x;
     int my_global_tid = my_local_tid + blockIdx.x * blockDim.x;
     int my_start_point = my_global_tid * work_per_thread;
-    int my_end_point = std::min(n_vals, my_start_point + work_per_thread);
+    int my_end_point = min(n_vals, my_start_point + work_per_thread);
     
     //Prepare shared memory for work to start 
     for (int i = my_local_tid; i < n_cluster; i += blockDim.x){
@@ -110,7 +111,7 @@ __global__ void get_label_shared(double *input_vals_c,
                 owner = j;
             }
         }
-
+        labels_c[i] = owner;
         //Add the point to owner's local copy
         atomicAdd(&n_points_local[owner], 1);
         for (int i = 0; i < dims; i++) {
@@ -130,7 +131,8 @@ __global__ void get_label_shared(double *input_vals_c,
 }
 
 void wrapper_get_label_shared(double *input_vals_c, 
-                         double *centers_c, 
+                         double *centers_c,
+                         int    *labels_c,
                          int    dims,
                          int    n_vals,
                          int    n_cluster,
@@ -146,7 +148,6 @@ void wrapper_get_label_shared(double *input_vals_c,
     get_label_shared<<<blocks, threads, shared_size_needed>>>
                     (input_vals_c,
                      centers_c,
-                     labels_c,
                      dims,
                      n_vals,
                      n_cluster,
