@@ -175,7 +175,8 @@ int main(int argc, char **argv){
     float temp_time = 0;
     */
     //cudaEventRecord(start);
-    for (iter = 0; iter < opts.max_iter; iter++){
+    for (iter = 0; iter < 4; iter++){
+    //for (iter = 0; iter < opts.max_iter; iter++){
         //cudaEventRecord(mem_start);
 
         mem_time.start_timing();
@@ -255,10 +256,10 @@ int main(int argc, char **argv){
         }
         //printf("new centers\n");
 
-        if(test_converge(centers, old_centers, opts.threshold)){
+        /*if(test_converge(centers, old_centers, opts.threshold)){
             iter++;
             break;
-        }
+        }*/
             
         //printf("centers: %lf\n",centers[0]);
         //printf("centers: %d\n",labels[100]);

@@ -57,16 +57,15 @@ void get_new_centers(kmeans_args *args){
     }
 }
 
-bool test_converge(kmeans_args *args, double *old_centers){
-    bool converge = true;
-    for (int i = 0; i < sizeof(old_centers); i++){
+bool test_converge(kmeans_args *args, double *old_centers, int n_cluster, int dims){
+    
+    for (int i = 0; i < n_cluster * dims; i++){
         if (fabs(old_centers[i] - args->centers[i]) > (args->threshold)){
-            converge = false;
-            break;
+            return false;
         }
     }
 
-    return converge;
+    return true;
 }
 
 int kmeans_cpu(kmeans_args *args){
@@ -85,7 +84,7 @@ int kmeans_cpu(kmeans_args *args){
         get_new_centers(args);
         //printf("old_centers2: %lf\n", old_centers[7*args->dims]);
         //convergence test
-        if(test_converge(args,old_centers)){
+        if(test_converge(args,old_centers, args->n_cluster, args->dims)){
             //printf("iter= %d\n", i);
             return i;
         }
