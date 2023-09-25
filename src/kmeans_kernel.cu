@@ -83,6 +83,8 @@ __global__ void get_label_shared(double *input_vals_c,
     int my_global_tid = threadIdx.x + blockIdx.x * blockDim.x;
     int my_start_point = my_global_tid * work_per_thread;
     int my_end_point = min(n_vals, my_start_point + work_per_thread);
+    int dim_interleave = threadIdx.x % dims;
+    int cluster_interleave = threadIdx.x % n_cluster;
     
     //Prepare shared memory for work to start 
     for (int i = threadIdx.x; i < n_cluster; i += blockDim.x){
@@ -103,7 +105,8 @@ __global__ void get_label_shared(double *input_vals_c,
         for (int j = 0; j < n_cluster; j++) {
             double sum = 0.0;
             for (int k = 0; k < dims; k++) {
-                sum += pow((input_vals_c[point_array_start+k] - centers_local[j*dims+k]), 2);
+                int interleaved_index = (dim_interleave + k) % dims;
+                sum += pow((input_vals_c[point_array_start+interleaved_index] - centers_local[j*dims+interleaved_index]), 2);
             }
             if (sum < distance_min) {
                 distance_min = sum;
@@ -114,7 +117,8 @@ __global__ void get_label_shared(double *input_vals_c,
         //Add the point to owner's local copy
         atomicAdd(&n_points_local[owner], 1);
         for (int i = 0; i < dims; i++) {
-            atomicAdd(&new_centers[owner*dims+i], input_vals_c[point_array_start+i]);
+            int interleaved_index = (dim_interleave + i) % dims;
+            atomicAdd(&new_centers[owner*dims+interleaved_index], input_vals_c[point_array_start+interleaved_index]);
         }
     }
     __syncthreads();
