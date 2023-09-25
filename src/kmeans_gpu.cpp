@@ -51,23 +51,21 @@ void output(int n_cluster, int n_vals, int dims, double *centers, int *labels, b
     }
 }
 
-bool test_converge(double *centers, double *old_centers, double threshold){
-    bool converge = true;
-    for (int i = 0; i < sizeof(old_centers); i++){
+bool test_converge(double *centers, double *old_centers, double threshold, int n_cluster, int dims){
+
+    for (int i = 0; i < n_cluster * dims; i++){
         //if (old_centers[i] - centers[i] > threshold || old_centers[i] - centers[i] < threshold *(-1)){
         if ( fabs(old_centers[i] - centers[i]) > threshold) {   
-            converge = false;
-            break;
+            return false;
         }
     }
 
-    return converge;
+    return true;
 }
 
 struct time_device{
     cudaEvent_t start, stop;
-    //cudaEventCreate(&start);
-    //cudaEventCreate(&stop);
+
     float time = 0;
     float temp = 0;
     void start_timing(){
@@ -100,10 +98,9 @@ int main(int argc, char **argv){
 
     // Parse args
     struct options_t opts;
-    //printf("%d args\n",argc);
+    
     get_opts(argc, argv, &opts);
-    //printf("d=%d, k=%d, m=%d, t=%f, s=%d, c=%d\n",opts.dims, opts.n_cluster, opts.max_iter, opts.threshold, opts.seed, opts.c_flag);
-    //printf("Last arg is %s", argv[argc-1]);
+    
     double *input_vals, *centers;
     double *old_centers, *temp_centers;
     int *labels, *n_points;
@@ -116,31 +113,18 @@ int main(int argc, char **argv){
     old_centers = (double*) malloc(centers_size);
     temp_centers = (double*) malloc(centers_size);
     n_points = (int*) malloc(opts.n_cluster * sizeof(int));
-
-    //struct kmeans_args args;
-    //fill_kmeans_args(&args, opts.n_cluster, n_vals, opts.dims, opts.max_iter, opts.threshold, input_vals,
-    //                 centers, labels);
-
+    //set centroids using seed
     random_centers(opts.seed, opts.n_cluster, n_vals, opts.dims, input_vals, centers);
-    //printf("input size:%d\n", input_size);
 
     double *input_vals_c, *centers_c;
     int *labels_c;
     int *n_points_c;//points count for each centroids
     double *old_centers_c, *temp_centers_c;
     int threads = 128, blocks = 40;
-    /*
-    cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-
-    cudaEvent_t mem_start, mem_stop;
-    cudaEventCreate(&mem_start);
-    cudaEventCreate(&mem_stop);
-    */
-
-    struct time_device total_time;
-    struct time_device mem_time;
+    
+    
+    struct time_device total_time;//total time for data transfer and iteration
+    struct time_device mem_time;//data transfer time
     struct time_device process_time;
     cudaEventCreate(&total_time.start);
     cudaEventCreate(&total_time.stop);
@@ -149,9 +133,7 @@ int main(int argc, char **argv){
     cudaEventCreate(&process_time.start);
     cudaEventCreate(&process_time.stop);
     
-    printf("Setting mem bank unit to 8B\n");
-    cudaDeviceSetSharedMemConfig(cudaSharedMemBankSizeEightByte);
-
+    
     total_time.start_timing();
     mem_time.start_timing();
 
@@ -161,49 +143,28 @@ int main(int argc, char **argv){
     cudaMalloc((int**)&n_points_c, opts.n_cluster * sizeof(int));
     cudaMalloc((double**)&old_centers_c, centers_size);
     cudaMalloc((double**)&temp_centers_c, centers_size);
-   // printf("input:%lf\n", input_vals[0]);
+    //copy host memory to device memory
     cudaMemcpy(centers_c, centers, centers_size, cudaMemcpyHostToDevice);
-   // printf("cp centers:%lf\n", centers[0]);
+   
     cudaMemcpy(input_vals_c, input_vals, input_size, cudaMemcpyHostToDevice);
    
     mem_time.stop_timing();
     
-    //printf("start iter\n");
+    
     int iter = 0;
-    /*
-    float mem_time = 0;
-    float temp_time = 0;
-    */
-    //cudaEventRecord(start);
-    for (iter = 0; iter < 4; iter++){
-    //for (iter = 0; iter < opts.max_iter; iter++){
-        //cudaEventRecord(mem_start);
-
+    
+    for (iter = 0; iter < opts.max_iter; iter++){
         mem_time.start_timing();
-        
+
         cudaMemcpy(old_centers, centers, centers_size, cudaMemcpyHostToHost);
         cudaMemcpy(centers_c, centers, centers_size, cudaMemcpyHostToDevice);
         cudaMemset(temp_centers_c, 0, centers_size);
         cudaMemset(n_points_c, 0, opts.n_cluster*sizeof(int));
 
         mem_time.stop_timing();
-        /*
-        cudaEventRecord(mem_stop);
-        cudaEventSynchronize(mem_stop);
-        cudaEventElapsedTime(&temp_time, mem_start, mem_stop);
-        mem_time+= temp_time;
-        //printf("mem_time:%lf\n",mem_time);
-        */
-        /*get_label<<< (n_vals+THREAD_PER_BLOCK-1)/THREAD_PER_BLOCK, THREAD_PER_BLOCK >>>(input_vals_c,
-                                                                       centers_c,
-                                                                       labels_c,
-                                                                       opts.dims,
-                                                                       n_vals,
-                                                                       opts.n_cluster,
-                                                                       temp_centers_c,
-                                                                       n_points_c);*/
+          
         process_time.start_timing();
-        /*wrapper_get_label(input_vals_c, 
+        wrapper_get_label(input_vals_c, 
                           centers_c,
                           labels_c,
                           opts.dims,
@@ -212,9 +173,9 @@ int main(int argc, char **argv){
                           temp_centers_c,
                           n_points_c,
                           (n_vals+THREAD_PER_BLOCK-1)/THREAD_PER_BLOCK,
-                          THREAD_PER_BLOCK);*/
+                          THREAD_PER_BLOCK);
         
-        wrapper_get_label_shared(input_vals_c, 
+        /*wrapper_get_label_shared(input_vals_c, 
                           centers_c,
                           labels_c,
                           opts.dims,
@@ -223,25 +184,18 @@ int main(int argc, char **argv){
                           temp_centers_c,
                           n_points_c,
                           blocks,
-                          threads);
+                          threads);*/
 
         cudaDeviceSynchronize();
         process_time.stop_timing();
-        //printf("after sync\n");
-
-        //cudaEventRecord(mem_start);
+        
+        
         mem_time.start_timing();
 
         cudaMemcpy(temp_centers, temp_centers_c, centers_size, cudaMemcpyDeviceToHost);
         cudaMemcpy(labels, labels_c, n_vals * sizeof(int), cudaMemcpyDeviceToHost);
         cudaMemcpy(n_points, n_points_c, opts.n_cluster*sizeof(int), cudaMemcpyDeviceToHost);
-        /*
-        cudaEventRecord(mem_stop);
-        cudaEventSynchronize(mem_stop);
-        cudaEventElapsedTime(&temp_time, mem_start, mem_stop);
-        mem_time+= temp_time;
-        //printf("n_point: %d\n",n_points[0]);
-        */
+        
         mem_time.stop_timing();
 
         for(int j = 0; j < opts.n_cluster; j++){
@@ -254,24 +208,16 @@ int main(int argc, char **argv){
                 
             }
         }
-        //printf("new centers\n");
+        
 
-        /*if(test_converge(centers, old_centers, opts.threshold)){
+        if(test_converge(centers, old_centers, opts.threshold, opts.n_cluster, opts.dims)){
             iter++;
             break;
-        }*/
-            
-        //printf("centers: %lf\n",centers[0]);
-        //printf("centers: %d\n",labels[100]);
+        }
 
 
     }
-    /*
-    cudaEventRecord(stop);
-    cudaEventSynchronize(stop);
-    float total_time = 0;
-    cudaEventElapsedTime(&total_time, start, stop);
-    */
+    
     total_time.stop_timing();
 
     printf("Running with %d blocks %d threads\n", blocks, threads);
