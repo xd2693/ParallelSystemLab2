@@ -37,10 +37,14 @@ int main(int argc, char **argv){
     auto diff = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     //total_time.end_timing();
 
-    printf("%d,%lf\n", iter+1, (double)(diff.count()/(iter+1)));
+    printf("%d,%lf\n", iter, ((double)diff.count()/(iter)));
 
     output(&args, opts.c_flag);
 
+    free(input_vals);
+    free(centers);
+    free(labels);
+    
     
     return 0;
 

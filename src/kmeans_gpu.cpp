@@ -5,7 +5,7 @@
 #include <math.h>
 #include "kmeans_kernel.cuh"
 
-#define THREAD_PER_BLOCK 512
+#define THREAD_PER_BLOCK 256
 
 static unsigned long int next = 1;
 static unsigned long kmeans_rmax = 32767;
@@ -64,6 +64,23 @@ bool test_converge(double *centers, double *old_centers, double threshold){
     return converge;
 }
 
+struct time_device{
+    cudaEvent_t start, stop;
+    //cudaEventCreate(&start);
+    //cudaEventCreate(&stop);
+    float time = 0;
+    float temp = 0;
+    void start_timing(){
+        cudaEventRecord(start);
+    }
+    void stop_timing(){
+        cudaEventRecord(stop);
+        cudaEventSynchronize(stop);
+        cudaEventElapsedTime(&temp, start, stop);
+        time+= temp;
+    }
+};
+
 int main(int argc, char **argv){
 
     /*int iDev = 0;
@@ -111,7 +128,7 @@ int main(int argc, char **argv){
     int *labels_c;
     int *n_points_c;//points count for each centroids
     double *old_centers_c, *temp_centers_c;
-    
+    /*
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
@@ -119,6 +136,18 @@ int main(int argc, char **argv){
     cudaEvent_t mem_start, mem_stop;
     cudaEventCreate(&mem_start);
     cudaEventCreate(&mem_stop);
+    */
+
+    struct time_device total_time;
+    struct time_device mem_time;
+    cudaEventCreate(&total_time.start);
+    cudaEventCreate(&total_time.stop);
+    cudaEventCreate(&mem_time.start);
+    cudaEventCreate(&mem_time.stop);
+
+
+    total_time.start_timing();
+    mem_time.start_timing();
 
     cudaMalloc((double**)&input_vals_c, input_size);
     cudaMalloc((double**)&centers_c, centers_size);
@@ -131,28 +160,33 @@ int main(int argc, char **argv){
    // printf("cp centers:%lf\n", centers[0]);
     cudaMemcpy(input_vals_c, input_vals, input_size, cudaMemcpyHostToDevice);
    
+    mem_time.stop_timing();
     
-
     //printf("start iter\n");
     int iter = 0;
+    /*
     float mem_time = 0;
     float temp_time = 0;
-
-    cudaEventRecord(start);
+    */
+    //cudaEventRecord(start);
     for (iter = 0; iter < opts.max_iter; iter++){
-        cudaEventRecord(mem_start);
+        //cudaEventRecord(mem_start);
+
+        mem_time.start_timing();
         
         cudaMemcpy(old_centers, centers, centers_size, cudaMemcpyHostToHost);
         cudaMemcpy(centers_c, centers, centers_size, cudaMemcpyHostToDevice);
         cudaMemset(temp_centers_c, 0, centers_size);
         cudaMemset(n_points_c, 0, opts.n_cluster*sizeof(int));
-        
+
+        mem_time.stop_timing();
+        /*
         cudaEventRecord(mem_stop);
         cudaEventSynchronize(mem_stop);
         cudaEventElapsedTime(&temp_time, mem_start, mem_stop);
         mem_time+= temp_time;
         //printf("mem_time:%lf\n",mem_time);
-
+        */
         /*get_label<<< (n_vals+THREAD_PER_BLOCK-1)/THREAD_PER_BLOCK, THREAD_PER_BLOCK >>>(input_vals_c,
                                                                        centers_c,
                                                                        labels_c,
@@ -175,18 +209,20 @@ int main(int argc, char **argv){
         cudaDeviceSynchronize();
         //printf("after sync\n");
 
-        cudaEventRecord(mem_start);
+        //cudaEventRecord(mem_start);
+        mem_time.start_timing();
 
         cudaMemcpy(temp_centers, temp_centers_c, centers_size, cudaMemcpyDeviceToHost);
-        cudaMemcpy(labels, labels_c, n_vals * sizeof(int), cudaMemcpyDeviceToHost);
+        //cudaMemcpy(labels, labels_c, n_vals * sizeof(int), cudaMemcpyDeviceToHost);
         cudaMemcpy(n_points, n_points_c, opts.n_cluster*sizeof(int), cudaMemcpyDeviceToHost);
-
+        /*
         cudaEventRecord(mem_stop);
         cudaEventSynchronize(mem_stop);
         cudaEventElapsedTime(&temp_time, mem_start, mem_stop);
         mem_time+= temp_time;
         //printf("n_point: %d\n",n_points[0]);
-        
+        */
+        mem_time.stop_timing();
 
         for(int j = 0; j < opts.n_cluster; j++){
             if(n_points[j]==0)
@@ -209,15 +245,17 @@ int main(int argc, char **argv){
 
 
     }
-
+    /*
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
     float total_time = 0;
     cudaEventElapsedTime(&total_time, start, stop);
+    */
+    total_time.stop_timing();
 
-    printf("%d,%lf\n", iter+1, (double)(total_time/(iter+1)));
-    printf("data time: %lf\n", mem_time);
-    printf("data transfer time fraction: %.2lf%%\n", mem_time/total_time*100);
+    printf("%d,%lf\n", iter, (double)(total_time.time/(iter)));
+    printf("data transter time: %lf\n", mem_time.time);
+    printf("data transfer time fraction: %.2lf%%\n", mem_time.time/total_time.time*100);
 
     output(opts.n_cluster, n_vals, opts.dims, centers, labels, opts.c_flag);
 
