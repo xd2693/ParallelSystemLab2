@@ -174,55 +174,49 @@ __global__ void get_label_shmem(double *input_vals_c,
     int input_size = n_vals * dims;
     double *centers_s = c;
     double *input_s = &c[centers_size];
+    int label = 0;
 
     for (int i = threadIdx.x; i < centers_size; i += blockDim.x) {
         centers_s[i] = centers_c[i];       
     }
     __syncthreads();
 
+    int array_index = threadIdx.x * dims;
     if (index < n_vals){
         for (int i = 0; i < dims; i++){
-            input_s[threadIdx.x * dims + i ] = input_vals_c[index * dims + i];
-            input_vals_c[index * dims + i] = threadIdx.x * dims + i;
+            input_s[array_index + i ] = input_vals_c[index * dims + i];
+            //input_vals_c[index * dims + i] = threadIdx.x * dims + i;
         }
-    }
-        
-
-
-
-    /*
-    int array_index = index * dims;
-    if (index < n_vals){
         
         double distance = DBL_MAX;
         double temp = DBL_MAX;
         for (int i = 0; i < n_cluster; i++){
             double sum=0.0;
             for (int j = 0; j < dims; j++){
-                sum+=pow((input_vals_c[array_index+j] - centers_c[i*dims+j]), 2);
+                sum+=pow((input_s[array_index+j] - centers_s[i*dims+j]), 2);
             }
             temp = sqrt(sum);
             if (temp < distance){
                 distance = temp;
-                labels_c[index] = i;
+                label = i;
             }
                 
                 
         }
-        
+        labels_c[index] = label;
 
-        int center_index = labels_c[index];
+        //int center_index = labels_c[index];
         //printf("label:%d\n",center_index);
         
-        atomicAdd(&n_points_c[center_index], 1);
+        atomicAdd(&n_points_c[label], 1);
         for (int i = 0; i < dims; i++){
             //temp_centers_c[center_index+j]+= input_vals_c[array_index+i];
-            atomicAdd(&temp_centers_c[center_index*dims+i], input_vals_c[array_index+i]);  
+            atomicAdd(&temp_centers_c[label*dims+i], input_s[array_index+i]);  
                   
         }
 
     }
-    */ 
+     
 }
 
 void wrapper_get_label_shmem(double *input_vals_c, 

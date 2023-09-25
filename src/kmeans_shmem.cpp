@@ -154,27 +154,7 @@ int main(int argc, char **argv){
     
     
     int iter = 0;
-
-    wrapper_get_label_shmem(input_vals_c, 
-                          centers_c,
-                          labels_c,
-                          opts.dims,
-                          n_vals,
-                          opts.n_cluster,
-                          temp_centers_c,
-                          n_points_c,
-                          THREAD_PER_BLOCK);
-
-    cudaDeviceSynchronize();
-    cudaMemcpy(input_vals, input_vals_c, input_size, cudaMemcpyDeviceToHost);
-    for (int i=0; i<n_vals; i++){
-        for (int j=0; j<opts.dims; j++){
-            printf("%f ",input_vals[i*opts.dims +j]);
-        }
-        printf("\n");
-    }
-        
-    /*
+           
     for (iter = 0; iter < opts.max_iter; iter++){
         mem_time.start_timing();
 
@@ -195,7 +175,7 @@ int main(int argc, char **argv){
                           opts.n_cluster,
                           temp_centers_c,
                           n_points_c,
-                          threads);
+                          THREAD_PER_BLOCK);
 
         cudaDeviceSynchronize();
         process_time.stop_timing();
@@ -238,5 +218,5 @@ int main(int argc, char **argv){
     printf("Pure process time per step %lf\n", (double)(process_time.time/iter));
 
     output(opts.n_cluster, n_vals, opts.dims, centers, labels, opts.c_flag);
-*/
+
 }
