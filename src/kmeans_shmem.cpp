@@ -162,8 +162,7 @@ int main(int argc, char **argv){
                           n_vals,
                           opts.n_cluster,
                           temp_centers_c,
-                          n_points_c,
-                          threads);
+                          n_points_c);
 
     cudaDeviceSynchronize();
     cudaMemcpy(input_vals, input_vals_c, input_size, cudaMemcpyDeviceToHost);

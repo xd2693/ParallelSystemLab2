@@ -232,8 +232,7 @@ void wrapper_get_label_shmem(double *input_vals_c,
                          int    n_vals,
                          int    n_cluster,
                          double *temp_centers_c,
-                         int *n_points_c,
-                         int threads)
+                         int *n_points_c)
 {
     int shared_size_needed = sizeof(double) * dims * n_cluster + sizeof(double) * dims * threads;
     int blocks = (n_vals + threads -1) / threads;
