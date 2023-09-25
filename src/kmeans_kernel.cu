@@ -175,6 +175,7 @@ __global__ void get_label_shmem(double *input_vals_c,
     double *centers_s = c;
     double *input_s = &c[centers_size];
     int label = 0;
+    int dim_interleave = threadIdx.x % dims;
 
     for (int i = threadIdx.x; i < centers_size; i += blockDim.x) {
         centers_s[i] = centers_c[i];       
@@ -184,7 +185,8 @@ __global__ void get_label_shmem(double *input_vals_c,
     int array_index = threadIdx.x * dims;
     if (index < n_vals){
         for (int i = 0; i < dims; i++){
-            input_s[array_index + i ] = input_vals_c[index * dims + i];
+            int interleaved_index = (dim_interleave + i) % dims;
+            input_s[array_index + interleaved_index ] = input_vals_c[index * dims + interleaved_index];
             //input_vals_c[index * dims + i] = threadIdx.x * dims + i;
         }
         
@@ -193,7 +195,8 @@ __global__ void get_label_shmem(double *input_vals_c,
         for (int i = 0; i < n_cluster; i++){
             double sum=0.0;
             for (int j = 0; j < dims; j++){
-                sum+=pow((input_s[array_index+j] - centers_s[i*dims+j]), 2);
+                int interleaved_index = (dim_interleave + j) % dims;
+                sum+=pow((input_s[array_index+interleaved_index] - centers_s[i*dims+interleaved_index]), 2);
             }
             temp = sqrt(sum);
             if (temp < distance){
@@ -211,7 +214,8 @@ __global__ void get_label_shmem(double *input_vals_c,
         atomicAdd(&n_points_c[label], 1);
         for (int i = 0; i < dims; i++){
             //temp_centers_c[center_index+j]+= input_vals_c[array_index+i];
-            atomicAdd(&temp_centers_c[label*dims+i], input_s[array_index+i]);  
+            int interleaved_index = (dim_interleave + i) % dims;
+            atomicAdd(&temp_centers_c[label*dims+interleaved_index], input_s[array_index+interleaved_index]);  
                   
         }
 
