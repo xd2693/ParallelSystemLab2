@@ -168,10 +168,10 @@ __global__ void get_label_shmem(double *input_vals_c,
                          double *temp_centers_c,
                          int *n_points_c){
     int index = threadIdx.x + blockIdx.x * blockDim.x;
-    int input_index = index * dims;
+    //int input_index = index * dims;
     extern __shared__ double c[];
     int centers_size = n_cluster * dims;
-    int input_size = n_vals * dims;
+    //int input_size = n_vals * dims;
     double *centers_s = c;
     double *input_s = &c[centers_size];
     int label = 0;

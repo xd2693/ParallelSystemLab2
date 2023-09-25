@@ -134,7 +134,7 @@ int main(int argc, char **argv){
     
     //printf("Setting mem bank unit to 8B\n");
     //set banksize to 8 bytes
-    //cudaDeviceSetSharedMemConfig(cudaSharedMemBankSizeEightByte);
+    cudaDeviceSetSharedMemConfig(cudaSharedMemBankSizeEightByte);
 
     total_time.start_timing();
     mem_time.start_timing();

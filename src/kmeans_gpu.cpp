@@ -5,7 +5,7 @@
 #include <math.h>
 #include "kmeans_kernel.cuh"
 
-#define THREAD_PER_BLOCK 256
+#define THREAD_PER_BLOCK 128
 
 static unsigned long int next = 1;
 static unsigned long kmeans_rmax = 32767;
