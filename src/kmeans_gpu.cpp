@@ -141,10 +141,13 @@ int main(int argc, char **argv){
 
     struct time_device total_time;
     struct time_device mem_time;
+    struct time_device process_time;
     cudaEventCreate(&total_time.start);
     cudaEventCreate(&total_time.stop);
     cudaEventCreate(&mem_time.start);
     cudaEventCreate(&mem_time.stop);
+    cudaEventCreate(&process_time.start);
+    cudaEventCreate(&process_time.stop);
     
     printf("Setting mem bank unit to 8B\n");
     cudaDeviceSetSharedMemConfig(cudaSharedMemBankSizeEightByte);
@@ -198,6 +201,7 @@ int main(int argc, char **argv){
                                                                        opts.n_cluster,
                                                                        temp_centers_c,
                                                                        n_points_c);*/
+        process_time.start_timing();
         /*wrapper_get_label(input_vals_c, 
                           centers_c,
                           labels_c,
@@ -221,13 +225,14 @@ int main(int argc, char **argv){
                           threads);
 
         cudaDeviceSynchronize();
+        process_time.stop_timing();
         //printf("after sync\n");
 
         //cudaEventRecord(mem_start);
         mem_time.start_timing();
 
         cudaMemcpy(temp_centers, temp_centers_c, centers_size, cudaMemcpyDeviceToHost);
-        //cudaMemcpy(labels, labels_c, n_vals * sizeof(int), cudaMemcpyDeviceToHost);
+        cudaMemcpy(labels, labels_c, n_vals * sizeof(int), cudaMemcpyDeviceToHost);
         cudaMemcpy(n_points, n_points_c, opts.n_cluster*sizeof(int), cudaMemcpyDeviceToHost);
         /*
         cudaEventRecord(mem_stop);
@@ -251,6 +256,7 @@ int main(int argc, char **argv){
         //printf("new centers\n");
 
         if(test_converge(centers, old_centers, opts.threshold)){
+            iter++;
             break;
         }
             
@@ -271,6 +277,7 @@ int main(int argc, char **argv){
     printf("%d,%lf\n", iter, (double)(total_time.time/(iter)));
     printf("data transter time: %lf\n", mem_time.time);
     printf("data transfer time fraction: %.2lf%%\n", mem_time.time/total_time.time*100);
+    printf("Pure process time per step %lf\n", (double)(process_time.time/iter));
 
     output(opts.n_cluster, n_vals, opts.dims, centers, labels, opts.c_flag);
 
