@@ -182,8 +182,8 @@ __global__ void get_label_shmem(double *input_vals_c,
 
     if (index < n_vals){
         for (int i = 0; i < dims; i++){
-            input_s[threadIdx.x * dims + i ] = input_vals_c[index + i];
-            input_vals_c[index + i] = threadIdx.x * dims + i;
+            input_s[threadIdx.x * dims + i ] = input_vals_c[index * dims + i];
+            input_vals_c[index * dims + i] = threadIdx.x * dims + i;
         }
     }
         
