@@ -154,7 +154,27 @@ int main(int argc, char **argv){
     
     
     int iter = 0;
-    
+
+    wrapper_get_label_shmem(input_vals_c, 
+                          centers_c,
+                          labels_c,
+                          opts.dims,
+                          n_vals,
+                          opts.n_cluster,
+                          temp_centers_c,
+                          n_points_c,
+                          threads);
+
+    cudaDeviceSynchronize();
+    cudaMemcpy(input_vals, input_vals_c, input_size, cudaMemcpyDeviceToHost);
+    for (int i=0; i<input_vals; i++){
+        for (int j=0; j<opts.dims){
+            printf("%f ",input_vals[i*opts.dims +j]);
+        }
+        printf("\n");
+    }
+        
+    /*
     for (iter = 0; iter < opts.max_iter; iter++){
         mem_time.start_timing();
 
@@ -166,18 +186,8 @@ int main(int argc, char **argv){
         mem_time.stop_timing();
           
         process_time.start_timing();
-        wrapper_get_label(input_vals_c, 
-                          centers_c,
-                          labels_c,
-                          opts.dims,
-                          n_vals,
-                          opts.n_cluster,
-                          temp_centers_c,
-                          n_points_c,
-                          (n_vals+THREAD_PER_BLOCK-1)/THREAD_PER_BLOCK,
-                          THREAD_PER_BLOCK);
         
-        /*wrapper_get_label_shared(input_vals_c, 
+        wrapper_get_label_shmem(input_vals_c, 
                           centers_c,
                           labels_c,
                           opts.dims,
@@ -185,8 +195,7 @@ int main(int argc, char **argv){
                           opts.n_cluster,
                           temp_centers_c,
                           n_points_c,
-                          blocks,
-                          threads);*/
+                          threads);
 
         cudaDeviceSynchronize();
         process_time.stop_timing();
@@ -229,5 +238,5 @@ int main(int argc, char **argv){
     printf("Pure process time per step %lf\n", (double)(process_time.time/iter));
 
     output(opts.n_cluster, n_vals, opts.dims, centers, labels, opts.c_flag);
-
+*/
 }
