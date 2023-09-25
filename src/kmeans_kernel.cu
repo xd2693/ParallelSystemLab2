@@ -125,7 +125,7 @@ __global__ void get_label_shared(double *input_vals_c,
         atomicAdd(&n_points_c[i], n_points_local[i]);
     }
     for (int i = my_local_tid; i < center_array_size; i += blockDim.x) {
-        atomicAdd(&centers_c[i], new_centers[i]);
+        atomicAdd(&temp_centers_c[i], new_centers[i]);
     }
 
 }
