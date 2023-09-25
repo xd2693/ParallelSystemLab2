@@ -128,6 +128,7 @@ int main(int argc, char **argv){
     int *labels_c;
     int *n_points_c;//points count for each centroids
     double *old_centers_c, *temp_centers_c;
+    int threads = 128, blocks = 40;
     /*
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
@@ -144,7 +145,9 @@ int main(int argc, char **argv){
     cudaEventCreate(&total_time.stop);
     cudaEventCreate(&mem_time.start);
     cudaEventCreate(&mem_time.stop);
-
+    
+    printf("Setting mem bank unit to 8B\n");
+    cudaDeviceSetSharedMemConfig(cudaSharedMemBankSizeEightByte);
 
     total_time.start_timing();
     mem_time.start_timing();
@@ -214,8 +217,8 @@ int main(int argc, char **argv){
                           opts.n_cluster,
                           temp_centers_c,
                           n_points_c,
-                          40,
-                          256);
+                          blocks,
+                          threads);
 
         cudaDeviceSynchronize();
         //printf("after sync\n");
@@ -264,6 +267,7 @@ int main(int argc, char **argv){
     */
     total_time.stop_timing();
 
+    printf("Running with %d blocks %d threads\n", blocks, threads);
     printf("%d,%lf\n", iter, (double)(total_time.time/(iter)));
     printf("data transter time: %lf\n", mem_time.time);
     printf("data transfer time fraction: %.2lf%%\n", mem_time.time/total_time.time*100);
