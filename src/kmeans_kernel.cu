@@ -70,7 +70,7 @@ __global__ void get_label_shared(double *input_vals_c,
                          int    n_vals,
                          int    n_cluster,
                          double *temp_centers_c,
-                         int *n_points_c
+                         int *n_points_c,
                          int work_per_thread)
 {
     //Calculate shared memory regions, each thread's work starting and end point
@@ -129,7 +129,7 @@ __global__ void get_label_shared(double *input_vals_c,
 
 }
 
-__global__ void wrapper_get_label_shared(double *input_vals_c, 
+void wrapper_get_label_shared(double *input_vals_c, 
                          double *centers_c, 
                          int    dims,
                          int    n_vals,
