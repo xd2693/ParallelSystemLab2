@@ -120,7 +120,7 @@ __global__ void get_label_shared(double *input_vals_c,
     __syncthreads();
 
     //Add each block's local center into global
-    for (int i = my_local_tid; i < n_clusters; i += blockDim.x) {
+    for (int i = my_local_tid; i < n_cluster; i += blockDim.x) {
         atomicAdd(&n_points_c[i], n_points_local[i]);
     }
     for (int i = my_local_tid; i < center_array_size; i += blockDim.x) {
@@ -143,7 +143,7 @@ void wrapper_get_label_shared(double *input_vals_c,
     int total_threads = blocks * threads;
     int addition_work = (n_vals % total_threads == 0) ? 0 : 1;
     int work_per_thread = n_vals / total_threads + addition_work;
-    get_label_shared<<<blocks, threads, shared_size,needed>>>
+    get_label_shared<<<blocks, threads, shared_size_needed>>>
                     (input_vals_c,
                      centers_c,
                      labels_c,
