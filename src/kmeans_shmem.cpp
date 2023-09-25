@@ -168,7 +168,7 @@ int main(int argc, char **argv){
     cudaDeviceSynchronize();
     cudaMemcpy(input_vals, input_vals_c, input_size, cudaMemcpyDeviceToHost);
     for (int i=0; i<input_vals; i++){
-        for (int j=0; j<opts.dims){
+        for (int j=0; j<opts.dims; j++){
             printf("%f ",input_vals[i*opts.dims +j]);
         }
         printf("\n");
