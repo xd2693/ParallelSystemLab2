@@ -26,8 +26,8 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
                       int    n_vals,
                       int    n_cluster)
 {
-    thrust::counting_iterator<int> first_point(0);
-    thrust::counting_iterator<int> last_point = first_point + n_vals-1;
+
+    printf("Sizes %d %d %d %d %d %d", intput_vals.size(), old_centers.size(), new_centers.size(), labels.size(), labels_for_reduce.size(), n_points.size());
     double* input_vals_p = thrust::raw_pointer_cast(input_vals.data());
     double* old_centers_p = thrust::raw_pointer_cast(old_centers.data());
     //double* new_centers_p = thrust::raw_pointer_cast(new_centers.data());
@@ -35,6 +35,7 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     int* labels_reduce_p = thrust::raw_pointer_cast(labels_for_reduce.data());
     int* n_points_p = thrust::raw_pointer_cast(n_points.data());
     thrust::sequence(thrust::device, labels.begin(), labels.end(), 0);
+    printf("Filling done %d %d\n", labels[0], labels[labels.size()-1]);
     CentoidAssignFunctor functor(input_vals_p, old_centers_p, labels_p, labels_reduce_p, n_points_p, dims, n_cluster);
     thrust::for_each(thrust::device, labels.begin(), labels.end(), functor);
 }
