@@ -218,7 +218,7 @@ __global__ void new_centers_shmem(double *input_vals_c,
         for (int i = 0; i < dims; i++){
             //temp_centers_c[center_index+j]+= input_vals_c[array_index+i];
             int interleaved_index = (dim_interleave + i) % dims;
-            atomicAdd(&temp_centers_c[label*dims+interleaved_index], input_s[array_index+interleaved_index]);  
+            atomicAdd(&temp_centers_c[label*dims+interleaved_index], input_vals_c[array_index+interleaved_index]);  
                   
         }
 
