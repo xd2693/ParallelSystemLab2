@@ -34,7 +34,7 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     int* labels_p = thrust::raw_pointer_cast(labels.data());
     int* labels_reduce_p = thrust::raw_pointer_cast(labels_for_reduce.data());
     int* n_points_p = thrust::raw_pointer_cast(n_points.data());
-
+    thrust::sequence(thrust::device, labels.begin(), labels.end(), 0);
     CentoidAssignFunctor functor(input_vals_p, old_centers_p, labels_p, labels_reduce_p, n_points_p, dims, n_cluster);
-    thrust::for_each(first_point, last_point, functor);
+    thrust::for_each(thrust::device, labels.begin(), labels.end(), functor);
 }
