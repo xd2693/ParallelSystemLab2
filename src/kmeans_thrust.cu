@@ -129,6 +129,7 @@ int main(int argc, char **argv){
     thrust::device_vector<int> labels_th(n_vals);
     thrust::device_vector<int> labels_for_reduce_th(n_vals * opts.dims);
     thrust::device_vector<int> n_points_th(opts.n_cluster);
+    thrust::device_vector<int> buffer_th(centers_size_count);
     input_vals_c = thrust::raw_pointer_cast(input_vals_th.data());
     centers_c = thrust::raw_pointer_cast(centers_th.data());
     temp_centers_c = thrust::raw_pointer_cast(temp_centers_th.data());
@@ -164,7 +165,7 @@ int main(int argc, char **argv){
     
     int iter = 0;
     
-    for (iter = 0; iter < 1; iter++){
+    for (iter = 0; iter < opts.max_iter; iter++){
         mem_time.start_timing();
 
         cudaMemcpy(old_centers, centers, centers_size, cudaMemcpyHostToHost);
@@ -178,6 +179,7 @@ int main(int argc, char **argv){
         get_label_thrust(input_vals_th,
                          centers_th,
                          temp_centers_th,
+                         buffer_th,
                          labels_th, 
                          labels_for_reduce_th,
                          n_points_th,

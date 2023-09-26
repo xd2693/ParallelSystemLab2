@@ -49,6 +49,7 @@ struct CentoidAssignFunctor {
 void get_label_thrust(thrust::device_vector<double> & input_vals, 
                       thrust::device_vector<double> & old_centers,
                       thrust::device_vector<double> & new_centers,
+                      thrust::device_vector<int> & buffer,
                       thrust::device_vector<int> & labels,
                       thrust::device_vector<int> & labels_for_reduce,
                       thrust::device_vector<int> & n_points,
