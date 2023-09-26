@@ -27,7 +27,7 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
                       int    n_cluster)
 {
 
-    printf("Sizes %d %d %d %d %d %d", intput_vals.size(), old_centers.size(), new_centers.size(), labels.size(), labels_for_reduce.size(), n_points.size());
+    printf("Sizes %lu %lu %lu %lu %lu %lu\n", input_vals.size(), old_centers.size(), new_centers.size(), labels.size(), labels_for_reduce.size(), n_points.size());
     double* input_vals_p = thrust::raw_pointer_cast(input_vals.data());
     double* old_centers_p = thrust::raw_pointer_cast(old_centers.data());
     //double* new_centers_p = thrust::raw_pointer_cast(new_centers.data());

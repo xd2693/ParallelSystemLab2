@@ -126,8 +126,8 @@ int main(int argc, char **argv){
     thrust::device_vector<double> input_vals_th(input_size_count);
     thrust::device_vector<double> centers_th(centers_size_count);
     thrust::device_vector<double> temp_centers_th(centers_size_count);
-    thrust::device_vector<int> labels_th(input_size_count);
-    thrust::device_vector<int> labels_for_reduce_th(input_size_count * opts.dims);
+    thrust::device_vector<int> labels_th(n_vals);
+    thrust::device_vector<int> labels_for_reduce_th(n_vals * opts.dims);
     thrust::device_vector<int> n_points_th(opts.n_cluster);
     input_vals_c = thrust::raw_pointer_cast(input_vals_th.data());
     centers_c = thrust::raw_pointer_cast(centers_th.data());
