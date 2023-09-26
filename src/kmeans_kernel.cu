@@ -28,7 +28,7 @@ __global__ void new_centers(double *input_vals_c,
                 
                 
         }
-        
+        labels_c[index] = label;
         //add 1 to number of points in the centroid group 
         atomicAdd(&n_points_c[label], 1);
         for (int i = 0; i < dims; i++){
