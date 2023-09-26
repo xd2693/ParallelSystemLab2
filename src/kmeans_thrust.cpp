@@ -109,7 +109,7 @@ int main(int argc, char **argv){
 
     int input_size_count = n_vals * opts.dims;
     int input_size = input_size_count * sizeof(int);
-    int centers_size_count = opts.n_cluster * opts.dim;
+    int centers_size_count = opts.n_cluster * opts.dims;
     int centers_size = centers_size_count * sizeof(double);
     old_centers = (double*) malloc(centers_size);
     temp_centers = (double*) malloc(centers_size);
@@ -127,7 +127,7 @@ int main(int argc, char **argv){
     thrust::device_vector<double> centers_th(centers_size_count);
     thrust::device_vector<double> temp_centers_th(centers_size_count);
     thrust::device_vector<int> labels_th(input_size_count);
-    thrust::device_vector<int> labels_for_reduce_th(input_size_count * opts.dim);
+    thrust::device_vector<int> labels_for_reduce_th(input_size_count * opts.dims);
     thrust::device_vector<int> n_points_th(opts.n_cluster);
     input_vals_c = thrust::raw_pointer_cast(input_vals_th.data());
     centers_c = thrust::raw_pointer_cast(centers_th.data());

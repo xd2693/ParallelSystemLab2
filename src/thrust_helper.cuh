@@ -24,11 +24,11 @@ struct CentoidAssignFunctor {
     __host__ __device__
     void operator()(int& index) const {
         for (int i = 0; i < dims; i++) {
-            intput_vals[index*dims+i] += i;
+            input_vals[index*dims+i] += i;
         }
         label_vals[index] = index;
     }
-}
+};
 
 void get_label_thrust(thrust::device_vector<double> & input_vals, 
                       thrust::device_vector<double> & old_centers,
