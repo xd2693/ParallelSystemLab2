@@ -176,10 +176,15 @@ int main(int argc, char **argv){
           
         process_time.start_timing();
         get_label_thrust(input_vals_th,
-                         centers_th, 
+                         centers_th,
+                         temp_centers_th,
                          labels_th, 
                          labels_for_reduce_th,
-                         )
+                         n_points_th,
+                         opts.dims,
+                         n_vals,
+                         opts.n_cluster
+                         );
 
         cudaDeviceSynchronize();
         process_time.stop_timing();
