@@ -164,6 +164,9 @@ int main(int argc, char **argv){
         mem_time.stop_timing();
           
         process_time.start_timing();
+
+        //compute distance between input and each centroid, select the closest centroid,
+        //summing input points on every dimension by centroids group for calculating new centroids later
         wrapper_new_centers(input_vals_c, 
                           centers_c,
                           labels_c,
@@ -198,10 +201,12 @@ int main(int argc, char **argv){
         
         mem_time.stop_timing();
 
+        //devide the sum from the previous on every dimension of the new centroid by the number
+        //of points in the centroid group
         for(int j = 0; j < opts.n_cluster; j++){
             if(n_points[j]==0)
                 continue;
-            //printf("temp_centers%d: %lf\n",j,temp_centers[j*opts.dims]);
+            
             for(int d = 0; d< opts.dims; d++){
                 
                 centers[j*opts.dims+d]=temp_centers[j*opts.dims+d]/n_points[j];

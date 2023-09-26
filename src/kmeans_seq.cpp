@@ -1,6 +1,9 @@
 #include "kmeans_seq.h"
 
-//get distance between input and centroid
+/***get distance before square root between input and centroid
+****since distance is only need to be compared for picking the closest centroid,
+****we don't have to do squre root for comparing.
+***/ 
 double get_distance(kmeans_args *args, 
                 int          input_index,
                 int          center_index){
@@ -9,7 +12,8 @@ double get_distance(kmeans_args *args,
     for (int i = 0; i < args->dims; i++){
         sum+= pow(((args->input_vals[input_index+i])-(args->centers[center_index+i])),2);
     }
-    return sqrt(sum);
+    //return sqrt(sum);
+    return sum;
 }
 
 //set label for the point, index is for point index in input_vals

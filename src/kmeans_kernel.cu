@@ -10,31 +10,29 @@ __global__ void new_centers(double *input_vals_c,
                          int *n_points_c){
     int index = threadIdx.x + blockIdx.x * blockDim.x;
     int array_index = index * dims;
+    int label = 0;
     if (index < n_vals){
         
         double distance = DBL_MAX;
-        double temp = DBL_MAX;
+        double sum;
         for (int i = 0; i < n_cluster; i++){
-            double sum=0.0;
+            sum = 0;
             for (int j = 0; j < dims; j++){
                 sum+=pow((input_vals_c[array_index+j] - centers_c[i*dims+j]), 2);
             }
-            temp = sqrt(sum);
-            if (temp < distance){
-                distance = temp;
-                labels_c[index] = i;
+            //temp = sqrt(sum);
+            if (sum < distance){
+                distance = sum;
+                label = i;
             }
                 
                 
         }
         
-
-        int center_index = labels_c[index];
-        //printf("label:%d\n",center_index);
-        
-        atomicAdd(&n_points_c[center_index], 1);
+        //add 1 to number of points in the centroid group 
+        atomicAdd(&n_points_c[label], 1);
         for (int i = 0; i < dims; i++){
-            //temp_centers_c[center_index+j]+= input_vals_c[array_index+i];
+            //add every dimension to the new centroid for average later
             atomicAdd(&temp_centers_c[center_index*dims+i], input_vals_c[array_index+i]);  
                   
         }
@@ -194,16 +192,17 @@ __global__ void new_centers_shmem(double *input_vals_c,
         }
         */
         double distance = DBL_MAX;
-        double temp = DBL_MAX;
+        //double temp = DBL_MAX;
+        double sum;
         for (int i = 0; i < n_cluster; i++){
-            double sum=0.0;
+            sum = 0;
             for (int j = 0; j < dims; j++){
                 int interleaved_index = (dim_interleave + j) % dims;
                 sum+=pow((input_vals_c[array_index+j] - centers_s[i*dims+interleaved_index]), 2);
             }
-            temp = sqrt(sum);
-            if (temp < distance){
-                distance = temp;
+            //temp = sqrt(sum);
+            if (sum < distance){
+                distance = sum;
                 label = i;
             }
                 
@@ -211,8 +210,7 @@ __global__ void new_centers_shmem(double *input_vals_c,
         }
         labels_c[index] = label;
 
-        //int center_index = labels_c[index];
-        //printf("label:%d\n",center_index);
+        
         
         atomicAdd(&n_points_c[label], 1);
         for (int i = 0; i < dims; i++){
@@ -238,8 +236,6 @@ void wrapper_new_centers_shmem(double *input_vals_c,
 {
     int shared_size_needed = sizeof(double) * dims * n_cluster + sizeof(double) * dims * threads;
     int blocks = (n_vals + threads -1) / threads;
-    //int addition_work = (n_vals % total_threads == 0) ? 0 : 1;
-    //int work_per_thread = n_vals / total_threads + addition_work;
     new_centers_shmem<<<blocks, threads, shared_size_needed>>>
                     (input_vals_c,
                      centers_c,

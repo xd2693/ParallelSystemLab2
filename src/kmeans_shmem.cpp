@@ -54,7 +54,6 @@ void output(int n_cluster, int n_vals, int dims, double *centers, int *labels, b
 bool test_converge(double *centers, double *old_centers, double threshold, int n_cluster, int dims){
 
     for (int i = 0; i < n_cluster * dims; i++){
-        //if (old_centers[i] - centers[i] > threshold || old_centers[i] - centers[i] < threshold *(-1)){
         if ( fabs(old_centers[i] - centers[i]) > threshold) {   
             return false;
         }
@@ -132,7 +131,7 @@ int main(int argc, char **argv){
     cudaEventCreate(&process_time.start);
     cudaEventCreate(&process_time.stop);
     
-    //printf("Setting mem bank unit to 8B\n");
+    
     //set banksize to 8 bytes
     cudaDeviceSetSharedMemConfig(cudaSharedMemBankSizeEightByte);
 
@@ -192,7 +191,7 @@ int main(int argc, char **argv){
         for(int j = 0; j < opts.n_cluster; j++){
             if(n_points[j]==0)
                 continue;
-            //printf("temp_centers%d: %lf\n",j,temp_centers[j*opts.dims]);
+            
             for(int d = 0; d< opts.dims; d++){
                 
                 centers[j*opts.dims+d]=temp_centers[j*opts.dims+d]/n_points[j];
