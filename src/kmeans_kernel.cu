@@ -33,7 +33,7 @@ __global__ void new_centers(double *input_vals_c,
         atomicAdd(&n_points_c[label], 1);
         for (int i = 0; i < dims; i++){
             //add every dimension to the new centroid for average later
-            atomicAdd(&temp_centers_c[center_index*dims+i], input_vals_c[array_index+i]);  
+            atomicAdd(&temp_centers_c[label*dims+i], input_vals_c[array_index+i]);  
                   
         }
 
