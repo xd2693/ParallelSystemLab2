@@ -198,7 +198,7 @@ __global__ void new_centers_shmem(double *input_vals_c,
             sum = 0;
             for (int j = 0; j < dims; j++){
                 int interleaved_index = (dim_interleave + j) % dims;
-                sum+=pow((input_vals_c[array_index+j] - centers_s[i*dims+interleaved_index]), 2);
+                sum+=pow((input_vals_c[array_index+interleaved_index] - centers_s[i*dims+interleaved_index]), 2);
             }
             //temp = sqrt(sum);
             if (sum < distance){
