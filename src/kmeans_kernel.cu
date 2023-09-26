@@ -182,7 +182,7 @@ __global__ void new_centers_shmem(double *input_vals_c,
     }
     __syncthreads();
 
-    int array_index = threadIdx.x * dims;
+    int array_index = index * dims;
     if (index < n_vals){
         /*
         for (int i = 0; i < dims; i++){
