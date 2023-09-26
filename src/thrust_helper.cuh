@@ -1,4 +1,7 @@
 #pragma once
+#include <cmath>
+#include <cfloat>
+#include "argparse.h"
 #include <thrust/device_vector.h>
 #include <thrust/transform.h>
 #include <thrust/sequence.h>
@@ -23,10 +26,22 @@ struct CentoidAssignFunctor {
 
     __host__ __device__
     void operator()(int& index) const {
-        for (int i = 0; i < dims; i++) {
-            input_vals[index*dims+i] += i;
+        int owner;
+        double distance = DBL_MAX;
+        for (int i = 0; i < clusters; i++) {
+            double sum = 0.0;
+            for (int j = 0; j < dims; j++) {
+                sum += pow(input_vals[index*dims+j] - center_vals[i*dims+j], 2);
+            }
+            if (sum < distance) {
+                distance = sum;
+                owner = i; 
+            }
         }
-        label_vals[index] = index;
+        for (int i = 0; i < dims; i++) {
+            label_vals_reduce[index * dims + i] = owner * dims + i;
+        }
+        index = owner;
     }
 };
 
