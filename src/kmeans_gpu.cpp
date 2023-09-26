@@ -164,7 +164,7 @@ int main(int argc, char **argv){
         mem_time.stop_timing();
           
         process_time.start_timing();
-        wrapper_get_label(input_vals_c, 
+        wrapper_new_centers(input_vals_c, 
                           centers_c,
                           labels_c,
                           opts.dims,
@@ -175,7 +175,7 @@ int main(int argc, char **argv){
                           (n_vals+THREAD_PER_BLOCK-1)/THREAD_PER_BLOCK,
                           THREAD_PER_BLOCK);
         
-        /*wrapper_get_label_shared(input_vals_c, 
+        /*wrapper_new_centers_shared(input_vals_c, 
                           centers_c,
                           labels_c,
                           opts.dims,
