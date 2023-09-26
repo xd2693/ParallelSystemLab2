@@ -167,7 +167,7 @@ int main(int argc, char **argv){
           
         process_time.start_timing();
         
-        wrapper_get_label_shmem(input_vals_c, 
+        wrapper_new_centers_shmem(input_vals_c, 
                           centers_c,
                           labels_c,
                           opts.dims,

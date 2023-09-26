@@ -1,5 +1,5 @@
-#ifndef _KMEANS_H
-#define _KMEANS_H
+#ifndef _KMEANS__SEQ_H
+#define _KMEANS_SEQ_H
 
 #include "argparse.h"
 #include "io.h"

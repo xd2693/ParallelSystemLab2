@@ -1,4 +1,4 @@
-#include "kmeans.h"
+#include "kmeans_seq.h"
 
 //get distance between input and centroid
 double get_distance(kmeans_args *args, 
@@ -24,17 +24,18 @@ int get_label (kmeans_args *args, int index){
             distance = temp;
         }
     }
-    //printf("point %d closest to center %d distance %.5f\n", index/args->dims, label, distance);
+    
     return label;
 }
 
+//get new centroids from reassigned points
 void get_new_centers(kmeans_args *args){
     int n_cluster = args->n_cluster;
     int n_vals = args->n_vals;
     int dims = args->dims;
     int n_points[n_cluster]={}; //for count how many points in each cluster
     double new_centers[args->n_cluster * args->dims]={};
-    //memset(args->centers, 0, sizeof(double) * args->dims * args->n_cluster);
+
     for (int i = 0; i < n_vals; i++){
         int center = args->labels[i];
         n_points[center] ++;
@@ -46,13 +47,14 @@ void get_new_centers(kmeans_args *args){
             
         }
     }
+    //update centroids
     for (int i = 0; i < n_cluster; i++){
+        //if all points got reassigned, don't update the centroid
         if (n_points[i] == 0)
             continue;
         for (int j = 0; j < dims; j++){
             int index = i * dims + j;
             args->centers[index] = (new_centers[index]) / n_points[i];
-            //printf("test1: %lf  ",args->centers[index]);
         }
     }
 }
@@ -74,21 +76,21 @@ int kmeans_cpu(kmeans_args *args){
     old_centers = (double*) malloc(size);
     for (int i = 0; i < args->max_iter; i++){
         memcpy(old_centers, args->centers, size);
-        //printf("old_centers1: %lf\n", old_centers[7*args->dims]);
+        
         //set label for each point
         for (int j =0; j < args->n_vals; j++){
             args->labels[j] = get_label(args, j * (args->dims));
         }
-        //printf("centers1 : %lf\n", args->centers[7*args->dims]);
+        
         //compute new centroids
         get_new_centers(args);
-        //printf("old_centers2: %lf\n", old_centers[7*args->dims]);
+        
         //convergence test
         if(test_converge(args,old_centers, args->n_cluster, args->dims)){
-            //printf("iter= %d\n", i);
+            i++;
             return i;
         }
-        //printf("centers2 : %lf\n", args->centers[7*args->dims]);
+        
     }
     return args->max_iter;
 }

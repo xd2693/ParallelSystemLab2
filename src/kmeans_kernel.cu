@@ -1,6 +1,6 @@
 #include "kmeans_kernel.cuh"
 
-__global__ void get_label(double *input_vals_c, 
+__global__ void new_centers(double *input_vals_c, 
                          double *centers_c, 
                          int    *labels_c,
                          int    dims,
@@ -42,7 +42,7 @@ __global__ void get_label(double *input_vals_c,
     } 
 }
 
-void wrapper_get_label(double *input_vals_c, 
+void wrapper_new_centers(double *input_vals_c, 
                          double *centers_c, 
                          int    *labels_c,
                          int    dims,
@@ -53,7 +53,7 @@ void wrapper_get_label(double *input_vals_c,
                          int blocks,
                          int threads)
 {
-    get_label<<<blocks, threads>>>(input_vals_c,
+    new_centers<<<blocks, threads>>>(input_vals_c,
                                    centers_c,
                                    labels_c,
                                    dims,
@@ -64,7 +64,7 @@ void wrapper_get_label(double *input_vals_c,
 
 }
 
-__global__ void get_label_shared(double *input_vals_c, 
+__global__ void new_centers_shared(double *input_vals_c, 
                          double *centers_c,
                          int    *labels_c,
                          int    dims,
@@ -132,7 +132,7 @@ __global__ void get_label_shared(double *input_vals_c,
 
 }
 
-void wrapper_get_label_shared(double *input_vals_c, 
+void wrapper_new_centers_shared(double *input_vals_c, 
                          double *centers_c,
                          int    *labels_c,
                          int    dims,
@@ -147,7 +147,7 @@ void wrapper_get_label_shared(double *input_vals_c,
     int total_threads = blocks * threads;
     int addition_work = (n_vals % total_threads == 0) ? 0 : 1;
     int work_per_thread = n_vals / total_threads + addition_work;
-    get_label_shared<<<blocks, threads, shared_size_needed>>>
+    new_centers_shared<<<blocks, threads, shared_size_needed>>>
                     (input_vals_c,
                      centers_c,
                      labels_c,
@@ -159,7 +159,7 @@ void wrapper_get_label_shared(double *input_vals_c,
                      work_per_thread);
 }
 
-__global__ void get_label_shmem(double *input_vals_c, 
+__global__ void new_centers_shmem(double *input_vals_c, 
                          double *centers_c, 
                          int    *labels_c,
                          int    dims,
@@ -167,13 +167,15 @@ __global__ void get_label_shmem(double *input_vals_c,
                          int    n_cluster,
                          double *temp_centers_c,
                          int *n_points_c){
+    
     int index = threadIdx.x + blockIdx.x * blockDim.x;
     //int input_index = index * dims;
     extern __shared__ double c[];
     int centers_size = n_cluster * dims;
     //int input_size = n_vals * dims;
     double *centers_s = c;
-    double *input_s = &c[centers_size];
+    //don't put input into shared memory
+    //double *input_s = &c[centers_size];
     int label = 0;
     int dim_interleave = threadIdx.x % dims;
 
@@ -184,19 +186,20 @@ __global__ void get_label_shmem(double *input_vals_c,
 
     int array_index = threadIdx.x * dims;
     if (index < n_vals){
+        /*
         for (int i = 0; i < dims; i++){
             int interleaved_index = (dim_interleave + i) % dims;
             input_s[array_index + interleaved_index ] = input_vals_c[index * dims + interleaved_index];
             //input_vals_c[index * dims + i] = threadIdx.x * dims + i;
         }
-        
+        */
         double distance = DBL_MAX;
         double temp = DBL_MAX;
         for (int i = 0; i < n_cluster; i++){
             double sum=0.0;
             for (int j = 0; j < dims; j++){
                 int interleaved_index = (dim_interleave + j) % dims;
-                sum+=pow((input_s[array_index+interleaved_index] - centers_s[i*dims+interleaved_index]), 2);
+                sum+=pow((input_vals_c[array_index+j] - centers_s[i*dims+interleaved_index]), 2);
             }
             temp = sqrt(sum);
             if (temp < distance){
@@ -223,7 +226,7 @@ __global__ void get_label_shmem(double *input_vals_c,
      
 }
 
-void wrapper_get_label_shmem(double *input_vals_c, 
+void wrapper_new_centers_shmem(double *input_vals_c, 
                          double *centers_c,
                          int    *labels_c,
                          int    dims,
@@ -237,7 +240,7 @@ void wrapper_get_label_shmem(double *input_vals_c,
     int blocks = (n_vals + threads -1) / threads;
     //int addition_work = (n_vals % total_threads == 0) ? 0 : 1;
     //int work_per_thread = n_vals / total_threads + addition_work;
-    get_label_shmem<<<blocks, threads, shared_size_needed>>>
+    new_centers_shmem<<<blocks, threads, shared_size_needed>>>
                     (input_vals_c,
                      centers_c,
                      labels_c,

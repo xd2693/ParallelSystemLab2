@@ -41,6 +41,7 @@ struct CentoidAssignFunctor {
         for (int i = 0; i < dims; i++) {
             label_vals_reduce[index * dims + i] = owner * dims + i;
         }
+        own_points[owner]++;
         index = owner;
     }
 };
