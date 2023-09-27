@@ -43,7 +43,8 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     thrust::device_vector<int> label_check(labels_for_reduce.begin(), labels_for_reduce.end());
     int max_label = 0;
     for (int i = 0; i < label_check.size(); i++) {
-        max_label = std::max(max_label, label_check[i]);
+        int temp = label_check[i];
+        max_label = std::max(max_label, temp);
     }
     printf("Max label is %d with %d labels\n", max_label, label_check.size());
     
