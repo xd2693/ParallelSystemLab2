@@ -43,6 +43,7 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     thrust::sequence(thrust::device, labels.begin(), labels.end(), 0);
     CentoidAssignFunctor functor(input_vals_p, old_centers_p, labels_p, labels_reduce_p, n_points_p, dims, n_cluster);
     
+    int check_range = 50;
     thrust::host_vector<int> owner_before(n_points.begin(), n_points.end());
     printf("Centoids own before");
     for (int i = 0; i < owner_before.size(); i++) {
@@ -50,14 +51,14 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     }
     printf("\n");
 
-    thrust::host_vector<int> label_check_1(labels.begin(), labels.end());
+    thrust::host_vector<int> label_check_1(labels.begin(), labels.begin()+check_range);
     printf("label_check_1");
     for (int i = 0; i < label_check_1.size(); i++) {
         printf("%d ", label_check_1[i]);
     }
     printf("\n");
 
-    thrust::host_vector<double> input_check(input_vals.begin(), input_vals.begin()+20);
+    thrust::host_vector<double> input_check(input_vals.begin(), input_vals.begin()+check_range);
     printf("Input check");
     for (int i = 0; i < input_check.size(); i++)
     {
@@ -65,17 +66,16 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     }
     printf("\n");
 
-    thrust::host_vector<double> newc_check(new_centers.begin(), new_centers.begin()+20);
-    printf("newc_check");
-    for (int i = 0; i < input_check.size(); i++)
+    thrust::host_vector<double> newc_check_b(new_centers.begin(), new_centers.end());
+    printf("newc_check_b");
+    for (int i = 0; i < newc_check_b.size(); i++)
     {
-        printf("%.5f ", newc_check[i]);
+        printf("%.5f ", newc_check_b[i]);
     }
     printf("\n");
 
     thrust::for_each(thrust::device, labels.begin(), labels.end(), functor);
     
-    int check_range = 5000;
     thrust::host_vector<int> label_check(labels_for_reduce.begin(), labels_for_reduce.begin()+check_range);
     thrust::host_vector<int> owner(n_points.begin(), n_points.end());
     int max_label = 0;
@@ -96,4 +96,12 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     
     thrust::reduce_by_key(thrust::device, labels_reduce_p, labels_reduce_p+check_range, input_vals_p, buffer_p, new_centers_p);
     thrust::stable_sort_by_key(thrust::device, buffer_p, buffer_p+buffer.size(), new_centers_p, thrust::less<int>());
+
+    thrust::host_vector<double> newc_check_a(new_centers.begin(), new_centers.end());
+    printf("newc_check_a");
+    for (int i = 0; i < newc_check_a.size(); i++)
+    {
+        printf("%.5f ", newc_check_a[i]);
+    }
+    printf("\n");
 }
