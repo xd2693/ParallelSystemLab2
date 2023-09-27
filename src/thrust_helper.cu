@@ -77,6 +77,12 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
 
     thrust::for_each(thrust::device, helper.begin(), helper.end(), functor);
     
+    thrust::host_vector<int> label_a(labels.begin(), labels.end());
+    printf("label_a");
+    for (int i = 0; i < label_a.size(); i++) {
+        printf("%d\n", label_a[i]);
+    }
+    printf("\n");
     thrust::host_vector<int> label_check(labels_for_reduce.begin(), labels_for_reduce.begin()+check_range);
     thrust::host_vector<int> owner(n_points.begin(), n_points.end());
     int max_label = 0;
