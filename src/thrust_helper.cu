@@ -39,6 +39,14 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     thrust::sequence(thrust::device, labels.begin(), labels.end(), 0);
     CentoidAssignFunctor functor(input_vals_p, old_centers_p, labels_p, labels_reduce_p, n_points_p, dims, n_cluster);
     thrust::for_each(thrust::device, labels.begin(), labels.end(), functor);
+    
+    thrust::device_vector<int> label_check(labels_for_reduce.begin(), labels_for_reduce.end());
+    int max_label = 0;
+    for (int i = 0; i < label_check.size(); i++) {
+        max_label = std::max(max_label, label_check[i]);
+    }
+    printf("Max label is %d with %d labels\n", max_label, label_check.size());
+    
     thrust::reduce_by_key(thrust::device, labels_reduce_p, labels_reduce_p+labels_for_reduce.size(), input_vals_p, buffer_p, new_centers_p);
     thrust::stable_sort_by_key(thrust::device, buffer_p, buffer_p+buffer.size(), new_centers_p, thrust::less<int>());
 }
