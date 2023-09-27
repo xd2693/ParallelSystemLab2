@@ -17,13 +17,12 @@ void check_vector(thrust::device_vector<int> &);
 struct CentoidAssignFunctor {
     double * input_vals;
     double * center_vals;
-    int * label_vals;
     int * label_vals_reduce;
     int dims;
     int clusters;
 
-    CentoidAssignFunctor(double* input, double* center, int* label, int* label_reduce, int dims, int clusters)
-    : input_vals(input), center_vals(center), label_vals(label), label_vals_reduce(label_reduce), dims(dims), clusters(clusters)
+    CentoidAssignFunctor(double* input, double* center, int* label_reduce, int dims, int clusters)
+    : input_vals(input), center_vals(center), label_vals_reduce(label_reduce), dims(dims), clusters(clusters)
     {}
 
     __host__ __device__

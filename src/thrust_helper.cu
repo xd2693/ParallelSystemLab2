@@ -29,40 +29,18 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
                       int    n_cluster)
 {
 
-    printf("Sizes %lu %lu %lu %lu %lu %lu %lu\n", input_vals.size(), old_centers.size(), new_centers.size(), buffer.size(), labels.size(), labels_for_reduce.size(), n_points.size());
-    
-
+    //printf("Sizes %lu %lu %lu %lu %lu %lu %lu\n", input_vals.size(), old_centers.size(), new_centers.size(), buffer.size(), labels.size(), labels_for_reduce.size(), n_points.size());
 
     double* input_vals_p = thrust::raw_pointer_cast(input_vals.data());
     double* old_centers_p = thrust::raw_pointer_cast(old_centers.data());
     double* new_centers_p = thrust::raw_pointer_cast(new_centers.data());
     int* buffer_p = thrust::raw_pointer_cast(buffer.data());
-    int* labels_p = thrust::raw_pointer_cast(labels.data());
     int* labels_reduce_p = thrust::raw_pointer_cast(labels_for_reduce.data());
     int* n_points_p = thrust::raw_pointer_cast(n_points.data());
     thrust::sequence(thrust::device, labels.begin(), labels.end(), 0);
-    CentoidAssignFunctor functor(input_vals_p, old_centers_p, labels_p, labels_reduce_p, dims, n_cluster);
-    
-    int check_range = 50;
-    printf("Centoids own before");
-    check_vector(n_points);
-
-    thrust::host_vector<double> input_check(input_vals.begin(), input_vals.begin()+check_range);
-    printf("Input check");
-    for (int i = 0; i < input_check.size(); i++)
-    {
-        printf("%.5f ", input_check[i]);
-    }
-    printf("\n");
-
-    printf("New Centers Before");
-    check_vector(new_centers);
-
+    CentoidAssignFunctor functor(input_vals_p, old_centers_p, labels_reduce_p, dims, n_cluster);
     
     thrust::for_each(thrust::device, labels.begin(), labels.end(), functor);
-    
-    printf("Centoid label");
-    check_vector(labels);
     
     // thrust::host_vector<int> label_check(labels_for_reduce.begin(), labels_for_reduce.begin()+check_range);
     
@@ -92,17 +70,17 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     thrust::stable_sort_by_key(thrust::device, labels_copy_p, labels_copy_p+n_vals, vector_one_p, thrust::less<int>());
     thrust::reduce_by_key(thrust::device, labels_copy_p, labels_copy_p+n_vals, vector_one_p, own_sort_p, n_points_p);
     thrust::stable_sort_by_key(thrust::device, own_sort_p, own_sort_p+n_cluster, n_points_p, thrust::less<int>());
-    printf("Centoids own ");
+    /*printf("Centoids own ");
     check_vector(n_points);
     printf("Sort");
-    check_vector(own_sort);
+    check_vector(own_sort);*/
 
     thrust::stable_sort_by_key(thrust::device, labels_for_reduce_copy_p, labels_for_reduce_copy_p+n_vals*dims, input_vals_copy_p);
     thrust::reduce_by_key(thrust::device, labels_for_reduce_copy_p, labels_for_reduce_copy_p+n_vals*dims, input_vals_copy_p, buffer_p, new_centers_p);
     thrust::stable_sort_by_key(thrust::device, buffer_p, buffer_p+n_cluster*dims, new_centers_p, thrust::less<int>());
 
-    printf("New Centers After");
-    check_vector(new_centers);
+    /*printf("New Centers After");
+    check_vector(new_centers);*/
 }
 
 void check_vector(thrust::device_vector<double> &input)
