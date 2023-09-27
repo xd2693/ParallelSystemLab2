@@ -50,10 +50,10 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     }
     printf("\n");
 
-    thrust::device_vector<int> label_check(labels.begin(), labels.end());
-        printf("label_check");
-    for (int i = 0; i < label_check.size(); i++) {
-        printf("%d ", label_check[i]);
+    thrust::device_vector<int> label_check_1(labels.begin(), labels.end());
+    printf("label_check_1");
+    for (int i = 0; i < label_check_1.size(); i++) {
+        printf("%d ", label_check_1[i]);
     }
     printf("\n");
 
