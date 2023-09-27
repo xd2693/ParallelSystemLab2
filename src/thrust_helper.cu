@@ -1,5 +1,6 @@
 #include "thrust_helper.cuh"
 #include <iostream>
+#include <set>
 
 /*void get_label_thrust(thrust::device_vector<double> & input_vals, 
                       thrust::device_vector<double> & old_centers,
@@ -28,7 +29,7 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
                       int    n_cluster)
 {
 
-    printf("Sizes %lu %lu %lu %lu %lu %lu\n", input_vals.size(), old_centers.size(), new_centers.size(), labels.size(), labels_for_reduce.size(), n_points.size());
+    printf("Sizes %lu %lu %lu %lu %lu %lu %lu\n", input_vals.size(), old_centers.size(), new_centers.size(), biffer.size(), labels.size(), labels_for_reduce.size(), n_points.size());
     double* input_vals_p = thrust::raw_pointer_cast(input_vals.data());
     double* old_centers_p = thrust::raw_pointer_cast(old_centers.data());
     double* new_centers_p = thrust::raw_pointer_cast(new_centers.data());
@@ -40,15 +41,18 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     CentoidAssignFunctor functor(input_vals_p, old_centers_p, labels_p, labels_reduce_p, n_points_p, dims, n_cluster);
     thrust::for_each(thrust::device, labels.begin(), labels.end(), functor);
     
-    thrust::device_vector<int> label_check(labels_for_reduce.begin(), labels_for_reduce.end());
+    int check_range = 1000;
+    thrust::device_vector<int> label_check(labels_for_reduce.begin(), labels_for_reduce.begin()+check_range);
     int max_label = 0;
     int min_label = 0;
-    for (int i = 0; i < label_check.size(); i++) {
+    std::set<int> test;
+    for (int i = 0; i < check_range; i++) {
         int temp = label_check[i];
         max_label = std::max(max_label, temp);
         min_label = std::min(min_label, temp);
+        test.emplace(temp);
     }
-    printf("Label range (%d-%d) with %lu labels\n", min_label, max_label, label_check.size());
+    printf("Label range (%d-%d) with %lu labels\n", min_label, max_label, test.size());
     
     thrust::reduce_by_key(thrust::device, labels_reduce_p, labels_reduce_p+labels_for_reduce.size(), input_vals_p, buffer_p, new_centers_p);
     thrust::stable_sort_by_key(thrust::device, buffer_p, buffer_p+buffer.size(), new_centers_p, thrust::less<int>());
