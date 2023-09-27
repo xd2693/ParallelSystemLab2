@@ -30,6 +30,13 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
 {
 
     printf("Sizes %lu %lu %lu %lu %lu %lu %lu\n", input_vals.size(), old_centers.size(), new_centers.size(), buffer.size(), labels.size(), labels_for_reduce.size(), n_points.size());
+    
+    thrust::device_vector<int> owner_before(n_points.begin(), n_points.end());
+    printf("Centoids own before");
+    for (int i = 0; i < owner_before.size(); i++) {
+        printf("%d ", owner_before[i]);
+    }
+
     double* input_vals_p = thrust::raw_pointer_cast(input_vals.data());
     double* old_centers_p = thrust::raw_pointer_cast(old_centers.data());
     double* new_centers_p = thrust::raw_pointer_cast(new_centers.data());
@@ -41,14 +48,14 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     CentoidAssignFunctor functor(input_vals_p, old_centers_p, labels_p, labels_reduce_p, n_points_p, dims, n_cluster);
     thrust::for_each(thrust::device, labels.begin(), labels.end(), functor);
     
-    int check_range = 1000;
+    int check_range = 5000;
     thrust::device_vector<int> label_check(labels_for_reduce.begin(), labels_for_reduce.begin()+check_range);
     thrust::device_vector<int> owner(n_points.begin(), n_points.end());
     int max_label = 0;
     int min_label = 0;
     std::set<int> test;
     printf("Centoids own ");
-    for (int i = 0; i < owner.size()) {
+    for (int i = 0; i < owner.size(); i++) {
         printf("%d ", owner[i]);
     }
     printf("\n");
