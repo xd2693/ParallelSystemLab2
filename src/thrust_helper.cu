@@ -42,11 +42,13 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     
     thrust::device_vector<int> label_check(labels_for_reduce.begin(), labels_for_reduce.end());
     int max_label = 0;
+    int min_label = 0;
     for (int i = 0; i < label_check.size(); i++) {
         int temp = label_check[i];
         max_label = std::max(max_label, temp);
+        min_label = std::min(min_label, temp);
     }
-    printf("Max label is %d with %d labels\n", max_label, label_check.size());
+    printf("Label range (%d-%d) with %lu labels\n", min_label, max_label, label_check.size());
     
     thrust::reduce_by_key(thrust::device, labels_reduce_p, labels_reduce_p+labels_for_reduce.size(), input_vals_p, buffer_p, new_centers_p);
     thrust::stable_sort_by_key(thrust::device, buffer_p, buffer_p+buffer.size(), new_centers_p, thrust::less<int>());
