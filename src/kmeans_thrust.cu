@@ -108,7 +108,7 @@ int main(int argc, char **argv){
     read_file(&opts, &n_vals, &input_vals, &labels, &centers);
 
     int input_size_count = n_vals * opts.dims;
-    int input_size = input_size_count * sizeof(int);
+    int input_size = input_size_count * sizeof(double);
     int centers_size_count = opts.n_cluster * opts.dims;
     int centers_size = centers_size_count * sizeof(double);
     old_centers = (double*) malloc(centers_size);
