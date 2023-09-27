@@ -16,12 +16,11 @@ struct CentoidAssignFunctor {
     double * center_vals;
     int * label_vals;
     int * label_vals_reduce;
-    int * own_points;
     int dims;
     int clusters;
 
-    CentoidAssignFunctor(double* input, double* center, int* label, int* label_reduce, int* points, int dims, int clusters)
-    : input_vals(input), center_vals(center), label_vals(label), label_vals_reduce(label_reduce), own_points(points), dims(dims), clusters(clusters)
+    CentoidAssignFunctor(double* input, double* center, int* label, int* label_reduce, int dims, int clusters)
+    : input_vals(input), center_vals(center), label_vals(label), label_vals_reduce(label_reduce), dims(dims), clusters(clusters)
     {}
 
     __host__ __device__
@@ -41,7 +40,6 @@ struct CentoidAssignFunctor {
         for (int i = 0; i < dims; i++) {
             label_vals_reduce[index * dims + i] = owner * dims + i;
         }
-        //own_points[owner]++;
         index = owner;
     }
 };

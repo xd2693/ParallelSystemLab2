@@ -41,7 +41,7 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     int* labels_reduce_p = thrust::raw_pointer_cast(labels_for_reduce.data());
     int* n_points_p = thrust::raw_pointer_cast(n_points.data());
     thrust::sequence(thrust::device, labels.begin(), labels.end(), 0);
-    CentoidAssignFunctor functor(input_vals_p, old_centers_p, labels_p, labels_reduce_p, n_points_p, dims, n_cluster);
+    CentoidAssignFunctor functor(input_vals_p, old_centers_p, labels_p, labels_reduce_p, dims, n_cluster);
     
     int check_range = 50;
     thrust::host_vector<int> owner_before(n_points.begin(), n_points.end());
@@ -83,15 +83,10 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     }
     printf("\n");
     thrust::host_vector<int> label_check(labels_for_reduce.begin(), labels_for_reduce.begin()+check_range);
-    thrust::host_vector<int> owner(n_points.begin(), n_points.end());
+    
     int max_label = 0;
     int min_label = 0;
     std::set<int> test;
-    printf("Centoids own ");
-    for (int i = 0; i < owner.size(); i++) {
-        printf("%d ", owner[i]);
-    }
-    printf("\n");
     for (int i = 0; i < check_range; i++) {
         int temp = label_check[i];
         max_label = std::max(max_label, temp);
@@ -99,9 +94,22 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
         test.emplace(temp);
     }
     printf("Label range (%d-%d) with %lu labels\n", min_label, max_label, test.size());
-    
-    thrust::reduce_by_key(thrust::device, labels_reduce_p, labels_reduce_p+check_range, input_vals_p, buffer_p, new_centers_p);
-    thrust::stable_sort_by_key(thrust::device, buffer_p, buffer_p+buffer.size(), new_centers_p, thrust::less<int>());
+
+    thrust::device_vector<int> own_sort(n_points.size());
+    thrust::device_vector<int> own_count(n_vals, 1);
+    int *own_count_p = thrust::raw_pointer_cast(own_count.data());
+    int *own_sort_p = thrust::raw_pointer_cast(own_sort.data());
+    thrust::reduce_by_key(thrust::device, labels_p, labels_p+n_vals, own_sort_p, n_points_p);
+    thrust::stable_sort_by_key(thrust::device, own_sort_p, own_sort_p+n_cluster, n_points_p, thrust::less<int>());
+    thrust::host_vector<int> owner(n_points.begin(), n_points.end());
+    printf("Centoids own ");
+    for (int i = 0; i < owner.size(); i++) {
+        printf("%d ", owner[i]);
+    }
+    printf("\n");
+
+    thrust::reduce_by_key(thrust::device, labels_reduce_p, labels_reduce_p+n_vals*dims, input_vals_p, buffer_p, new_centers_p);
+    thrust::stable_sort_by_key(thrust::device, buffer_p, buffer_p+n_cluster*dims, new_centers_p, thrust::less<int>());
 
     thrust::host_vector<double> newc_check_a(new_centers.begin(), new_centers.end());
     printf("newc_check_a");
