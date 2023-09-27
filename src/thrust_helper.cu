@@ -68,6 +68,8 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     printf("\n");
 
     thrust::for_each(thrust::device, labels.begin(), labels.end(), functor);
+    printf("Centoid label");
+    check_vector(labels);
     
     thrust::host_vector<int> label_check(labels_for_reduce.begin(), labels_for_reduce.begin()+check_range);
     
