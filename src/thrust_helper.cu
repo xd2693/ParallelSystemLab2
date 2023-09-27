@@ -31,11 +31,7 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
 
     printf("Sizes %lu %lu %lu %lu %lu %lu %lu\n", input_vals.size(), old_centers.size(), new_centers.size(), buffer.size(), labels.size(), labels_for_reduce.size(), n_points.size());
     
-    thrust::device_vector<int> owner_before(n_points.begin(), n_points.end());
-    printf("Centoids own before");
-    for (int i = 0; i < owner_before.size(); i++) {
-        printf("%d ", owner_before[i]);
-    }
+
 
     double* input_vals_p = thrust::raw_pointer_cast(input_vals.data());
     double* old_centers_p = thrust::raw_pointer_cast(old_centers.data());
@@ -46,6 +42,37 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     int* n_points_p = thrust::raw_pointer_cast(n_points.data());
     thrust::sequence(thrust::device, labels.begin(), labels.end(), 0);
     CentoidAssignFunctor functor(input_vals_p, old_centers_p, labels_p, labels_reduce_p, n_points_p, dims, n_cluster);
+    
+    thrust::device_vector<int> owner_before(n_points.begin(), n_points.end());
+    printf("Centoids own before");
+    for (int i = 0; i < owner_before.size(); i++) {
+        printf("%d ", owner_before[i]);
+    }
+    printf("\n");
+
+    thrust::device_vector<int> label_check(labels.begin(), labels.end());
+        printf("label_check");
+    for (int i = 0; i < label_check.size(); i++) {
+        printf("%d ", label_check[i]);
+    }
+    printf("\n");
+
+    thrust::device_vector<double> input_check(input_vals.begin(), input_vals.begin()+20);
+    printf("Input check");
+    for (int i = 0; i < input_check.size(); i++)
+    {
+        printf("%.5f ", input_check[i]);
+    }
+    printf("\n");
+
+    thrust::device_vector<double> newc_check(new_centers.begin(), new_centers.begin()+20);
+    printf("newc_check");
+    for (int i = 0; i < input_check.size(); i++)
+    {
+        printf("%.5f ", newc_check[i]);
+    }
+    printf("\n");
+
     thrust::for_each(thrust::device, labels.begin(), labels.end(), functor);
     
     int check_range = 5000;
