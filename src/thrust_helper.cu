@@ -43,21 +43,21 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     thrust::sequence(thrust::device, labels.begin(), labels.end(), 0);
     CentoidAssignFunctor functor(input_vals_p, old_centers_p, labels_p, labels_reduce_p, n_points_p, dims, n_cluster);
     
-    thrust::device_vector<int> owner_before(n_points.begin(), n_points.end());
+    thrust::host_vector<int> owner_before(n_points.begin(), n_points.end());
     printf("Centoids own before");
     for (int i = 0; i < owner_before.size(); i++) {
         printf("%d ", owner_before[i]);
     }
     printf("\n");
 
-    thrust::device_vector<int> label_check_1(labels.begin(), labels.end());
+    thrust::host_vector<int> label_check_1(labels.begin(), labels.end());
     printf("label_check_1");
     for (int i = 0; i < label_check_1.size(); i++) {
         printf("%d ", label_check_1[i]);
     }
     printf("\n");
 
-    thrust::device_vector<double> input_check(input_vals.begin(), input_vals.begin()+20);
+    thrust::host_vector<double> input_check(input_vals.begin(), input_vals.begin()+20);
     printf("Input check");
     for (int i = 0; i < input_check.size(); i++)
     {
@@ -65,7 +65,7 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     }
     printf("\n");
 
-    thrust::device_vector<double> newc_check(new_centers.begin(), new_centers.begin()+20);
+    thrust::host_vector<double> newc_check(new_centers.begin(), new_centers.begin()+20);
     printf("newc_check");
     for (int i = 0; i < input_check.size(); i++)
     {
@@ -76,8 +76,8 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     thrust::for_each(thrust::device, labels.begin(), labels.end(), functor);
     
     int check_range = 5000;
-    thrust::device_vector<int> label_check(labels_for_reduce.begin(), labels_for_reduce.begin()+check_range);
-    thrust::device_vector<int> owner(n_points.begin(), n_points.end());
+    thrust::host_vector<int> label_check(labels_for_reduce.begin(), labels_for_reduce.begin()+check_range);
+    thrust::host_vector<int> owner(n_points.begin(), n_points.end());
     int max_label = 0;
     int min_label = 0;
     std::set<int> test;
