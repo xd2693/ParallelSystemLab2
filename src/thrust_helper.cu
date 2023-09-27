@@ -88,9 +88,9 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     thrust::device_vector<int> own_count(n_vals, 1);
     int *own_count_p = thrust::raw_pointer_cast(own_count.data());
     int *own_sort_p = thrust::raw_pointer_cast(own_sort.data());
+    thrust::stable_sort_by_key(thrust::device, labels_p, labels_p+n_vals, own_count_p, thrust::less<int>);
     thrust::reduce_by_key(thrust::device, labels_p, labels_p+n_vals, own_count_p, own_sort_p, n_points_p);
     thrust::stable_sort_by_key(thrust::device, own_sort_p, own_sort_p+n_cluster, n_points_p, thrust::less<int>());
-    thrust::host_vector<int> owner(n_points.begin(), n_points.end());
     printf("Centoids own ");
     check_vector(n_points);
     printf("Sort");
