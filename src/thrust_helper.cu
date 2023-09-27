@@ -51,13 +51,6 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     }
     printf("\n");
 
-    thrust::host_vector<int> label_check_1(labels.begin(), labels.begin()+check_range);
-    printf("label_check_1");
-    for (int i = 0; i < label_check_1.size(); i++) {
-        printf("%d ", label_check_1[i]);
-    }
-    printf("\n");
-
     thrust::host_vector<double> input_check(input_vals.begin(), input_vals.begin()+check_range);
     printf("Input check");
     for (int i = 0; i < input_check.size(); i++)
@@ -76,12 +69,6 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
 
     thrust::for_each(thrust::device, labels.begin(), labels.end(), functor);
     
-    thrust::host_vector<int> label_a(labels.begin(), labels.end());
-    printf("label_a");
-    for (int i = 0; i < label_a.size(); i++) {
-        printf("%d\n", label_a[i]);
-    }
-    printf("\n");
     thrust::host_vector<int> label_check(labels_for_reduce.begin(), labels_for_reduce.begin()+check_range);
     
     int max_label = 0;
@@ -103,10 +90,11 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     thrust::stable_sort_by_key(thrust::device, own_sort_p, own_sort_p+n_cluster, n_points_p, thrust::less<int>());
     thrust::host_vector<int> owner(n_points.begin(), n_points.end());
     printf("Centoids own ");
-    for (int i = 0; i < owner.size(); i++) {
-        printf("%d ", owner[i]);
-    }
-    printf("\n");
+    check_vector(n_points);
+    printf("Sort");
+    check_vector(own_sort);
+    printf("Count");
+    check_vector(own_count);
 
     thrust::reduce_by_key(thrust::device, labels_reduce_p, labels_reduce_p+n_vals*dims, input_vals_p, buffer_p, new_centers_p);
     thrust::stable_sort_by_key(thrust::device, buffer_p, buffer_p+n_cluster*dims, new_centers_p, thrust::less<int>());
@@ -118,4 +106,24 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
         printf("%.5f ", newc_check_a[i]);
     }
     printf("\n");
+}
+
+void check_vector(thrust::device_vector<double> &input)
+{
+    thrust::host_vector<double> helper(input.begin(), input.end());
+    printf("double check\n");
+    for (int i = 0; i < helper.size(); i++)
+    {
+        printf("%.5f\n",helper[i]);
+    }
+}
+
+void check_vector(thrust::device_vector<int> &input)
+{
+    thrust::host_vector<int> helper(input.begin(), input.end());
+    printf("int check\n");
+    for (int i = 0; i < helper.size(); i++)
+    {
+        printf("%.d\n", helper[i]);
+    }
 }

@@ -11,6 +11,9 @@
 #include <thrust/functional.h>
 #include <iostream>
 
+void check_vector(thrust::device_vector<double> &);
+void check_vector(thrust::device_vector<int> &);
+
 struct CentoidAssignFunctor {
     double * input_vals;
     double * center_vals;
