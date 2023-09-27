@@ -40,7 +40,8 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     int* labels_p = thrust::raw_pointer_cast(labels.data());
     int* labels_reduce_p = thrust::raw_pointer_cast(labels_for_reduce.data());
     int* n_points_p = thrust::raw_pointer_cast(n_points.data());
-    thrust::sequence(thrust::device, labels.begin(), labels.end(), 0);
+    thrust::device_vector<int> helper(labels.size());
+    thrust::sequence(thrust::device, helper.begin(), helper.end(), 0);
     CentoidAssignFunctor functor(input_vals_p, old_centers_p, labels_p, labels_reduce_p, n_points_p, dims, n_cluster);
     
     int check_range = 50;
@@ -74,7 +75,7 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     }
     printf("\n");
 
-    thrust::for_each(thrust::device, labels.begin(), labels.end(), functor);
+    thrust::for_each(thrust::device, helper.begin(), helper.end(), functor);
     
     thrust::host_vector<int> label_check(labels_for_reduce.begin(), labels_for_reduce.begin()+check_range);
     thrust::host_vector<int> owner(n_points.begin(), n_points.end());
