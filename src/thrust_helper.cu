@@ -97,8 +97,6 @@ void get_label_thrust(thrust::device_vector<double> & input_vals,
     printf("Sort");
     check_vector(own_sort);
 
-    thrust::device_vector<int> labels_for_reduce_copy(labels_for_reduce);
-    int *labels_copy_p = thrust::raw_pointer_cast(labels_for_reduce_copy.data());
     thrust::stable_sort_by_key(thrust::device, labels_for_reduce_copy_p, labels_for_reduce_copy_p+n_vals*dims, input_vals_copy_p);
     thrust::reduce_by_key(thrust::device, labels_for_reduce_copy_p, labels_for_reduce_copy_p+n_vals*dims, input_vals_copy_p, buffer_p, new_centers_p);
     thrust::stable_sort_by_key(thrust::device, buffer_p, buffer_p+n_cluster*dims, new_centers_p, thrust::less<int>());
