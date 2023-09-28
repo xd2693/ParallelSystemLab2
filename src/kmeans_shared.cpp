@@ -152,7 +152,8 @@ int main(int argc, char **argv){
     cudaMemcpy(input_vals_c, input_vals, input_size, cudaMemcpyHostToDevice);
    
     int iter = 0;
-    
+    //set banksize to 8 bytes
+    cudaDeviceSetSharedMemConfig(cudaSharedMemBankSizeEightByte);
     for (iter = 0; iter < opts.max_iter; iter++){
         mem_time.start_timing();
 
