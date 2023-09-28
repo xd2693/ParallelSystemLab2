@@ -139,7 +139,6 @@ int main(int argc, char **argv){
     
     
     total_time.start_timing();
-    mem_time.start_timing();
 
     cudaMalloc((double**)&input_vals_c, input_size);
     cudaMalloc((double**)&centers_c, centers_size);
@@ -152,9 +151,6 @@ int main(int argc, char **argv){
    
     cudaMemcpy(input_vals_c, input_vals, input_size, cudaMemcpyHostToDevice);
    
-    mem_time.stop_timing();
-    
-    
     int iter = 0;
     
     for (iter = 0; iter < opts.max_iter; iter++){
