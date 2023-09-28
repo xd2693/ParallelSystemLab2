@@ -132,10 +132,7 @@ int main(int argc, char **argv){
     cudaEventCreate(&mem_time.stop);
     cudaEventCreate(&process_time.start);
     cudaEventCreate(&process_time.stop);
-    
-    
-    total_time.start_timing();
-    mem_time.start_timing();
+
 
     cudaMalloc((double**)&input_vals_c, input_size);
     cudaMalloc((double**)&centers_c, centers_size);
@@ -146,13 +143,10 @@ int main(int argc, char **argv){
     //copy host memory to device memory
     cudaMemcpy(centers_c, centers, centers_size, cudaMemcpyHostToDevice);
    
-    cudaMemcpy(input_vals_c, input_vals, input_size, cudaMemcpyHostToDevice);
-   
-    mem_time.stop_timing();
-    
+    cudaMemcpy(input_vals_c, input_vals, input_size, cudaMemcpyHostToDevice);   
     
     int iter = 0;
-    
+    total_time.start_timing();
     for (iter = 0; iter < opts.max_iter; iter++){
         mem_time.start_timing();
 
@@ -162,7 +156,6 @@ int main(int argc, char **argv){
         cudaMemset(n_points_c, 0, opts.n_cluster*sizeof(int));
 
         mem_time.stop_timing();
-          
         process_time.start_timing();
 
         //compute distance between input and each centroid, select the closest centroid,

@@ -139,7 +139,7 @@ int main(int argc, char **argv){
     bool can_run_shared_mem = (shared_mem_needed <= SHARED_MEMORY_BYTES);
     
     
-    total_time.start_timing();
+
 
     cudaMalloc((double**)&input_vals_c, input_size);
     cudaMalloc((double**)&centers_c, centers_size);
@@ -152,10 +152,10 @@ int main(int argc, char **argv){
    
     cudaMemcpy(input_vals_c, input_vals, input_size, cudaMemcpyHostToDevice);
    
-    auto start = std::chrono::high_resolution_clock::now();
     int iter = 0;
     //set banksize to 8 bytes
     cudaDeviceSetSharedMemConfig(cudaSharedMemBankSizeEightByte);
+    total_time.start_timing();
     for (iter = 0; iter < opts.max_iter; iter++){
         mem_time.start_timing();
 
@@ -196,7 +196,6 @@ int main(int argc, char **argv){
         cudaDeviceSynchronize();
         process_time.stop_timing();
         
-        
         mem_time.start_timing();
 
         cudaMemcpy(temp_centers, temp_centers_c, centers_size, cudaMemcpyDeviceToHost);
@@ -226,10 +225,7 @@ int main(int argc, char **argv){
 
 
     }
-    auto end = std::chrono::high_resolution_clock::now();
-    auto diff = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
-    printf("us measure %d,%lf\n", iter, ((double)diff.count()/(iter)));
     total_time.stop_timing();
 
     printf("Running with %d blocks %d threads shared %d\n",OPTIMAL_BLOCKS_MY_SHARED, OPTIMAL_THREADS_MY_SHARED, can_run_shared_mem);
