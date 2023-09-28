@@ -77,6 +77,7 @@ __global__ void new_centers_shared(double *input_vals_c,
     int center_array_size = n_cluster * dims;
     double * centers_local = s;
     double * new_centers = &s[center_array_size];
+    double * my_input_cache = &s[center_array_size * 2 + threadIdx.x * dims];
     int * n_points_local = (int*)&s[center_array_size * 2];
     int my_global_tid = threadIdx.x + blockIdx.x * blockDim.x;
     int my_start_point = my_global_tid * work_per_thread;
@@ -99,11 +100,16 @@ __global__ void new_centers_shared(double *input_vals_c,
         int point_array_start = i * dims;
         double distance_min = DBL_MAX;
         int owner;
+        //Copy input into local cache
+        for (int j = 0; j < dims; j++) {
+            int interleaved_index = (dim_interleave + j) % dims;
+            my_input_cache[interleaved_index] = input_vals_c[point_array_start + interleaved_index];
+        }
         for (int j = 0; j < n_cluster; j++) {
             double sum = 0.0;
             for (int k = 0; k < dims; k++) {
                 int interleaved_index = (dim_interleave + k) % dims;
-                sum += pow((input_vals_c[point_array_start+interleaved_index] - centers_local[j*dims+interleaved_index]), 2);
+                sum += pow((my_input_cache[interleaved_index] - centers_local[j*dims+interleaved_index]), 2);
             }
             if (sum < distance_min) {
                 distance_min = sum;
@@ -113,9 +119,9 @@ __global__ void new_centers_shared(double *input_vals_c,
         labels_c[i] = owner;
         //Add the point to owner's local copy
         atomicAdd(&n_points_local[owner], 1);
-        for (int i = 0; i < dims; i++) {
-            int interleaved_index = (dim_interleave + i) % dims;
-            atomicAdd(&new_centers[owner*dims+interleaved_index], input_vals_c[point_array_start+interleaved_index]);
+        for (int j = 0; j < dims; j++) {
+            int interleaved_index = (dim_interleave + j) % dims;
+            atomicAdd(&new_centers[owner*dims+interleaved_index], my_input_cache[interleaved_index]);
         }
     }
     __syncthreads();
@@ -139,13 +145,13 @@ void wrapper_new_centers_shared(double *input_vals_c,
                          double *temp_centers_c,
                          int *n_points_c,
                          int blocks,
-                         int threads)
+                         int threads,
+                         int shared_mem)
 {
-    int shared_size_needed = 2 * sizeof(double) * dims * n_cluster + sizeof(int) * dims;
     int total_threads = blocks * threads;
     int addition_work = (n_vals % total_threads == 0) ? 0 : 1;
     int work_per_thread = n_vals / total_threads + addition_work;
-    new_centers_shared<<<blocks, threads, shared_size_needed>>>
+    new_centers_shared<<<blocks, threads, shared_mem>>>
                     (input_vals_c,
                      centers_c,
                      labels_c,
