@@ -152,6 +152,7 @@ int main(int argc, char **argv){
    
     cudaMemcpy(input_vals_c, input_vals, input_size, cudaMemcpyHostToDevice);
    
+    auto start = std::chrono::high_resolution_clock::now();
     int iter = 0;
     //set banksize to 8 bytes
     cudaDeviceSetSharedMemConfig(cudaSharedMemBankSizeEightByte);
@@ -225,10 +226,13 @@ int main(int argc, char **argv){
 
 
     }
-    
+    auto end = std::chrono::high_resolution_clock::now();
+    auto diff = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+
+    printf("us measure %d,%lf\n", iter, ((double)diff.count()/(iter)));
     total_time.stop_timing();
 
-    printf("Running with %d blocks %d threads shared %d\n", OPTIMAL_THREADS_MY_SHARED, OPTIMAL_BLOCKS_MY_SHARED, can_run_shared_mem);
+    printf("Running with %d blocks %d threads shared %d\n",OPTIMAL_BLOCKS_MY_SHARED, OPTIMAL_THREADS_MY_SHARED, can_run_shared_mem);
     printf("%d,%lf\n", iter, (double)(total_time.time/(iter)));
     printf("data transter time: %lf\n", mem_time.time);
     printf("data transfer time fraction: %.2lf%%\n", mem_time.time/total_time.time*100);
