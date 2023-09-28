@@ -77,23 +77,23 @@ __global__ void new_centers_shared(double *input_vals_c,
     extern __shared__ double s[];
     int center_array_size = n_cluster * dims;
     double * centers_local = s;
-    //double * new_centers = &s[center_array_size];
-    //double * my_input_cache = &s[center_array_size * 2 + threadIdx.x * dims];
-    double * my_input_cache = &s[center_array_size + threadIdx.x * dims];
-    //int * n_points_local = (int*)&s[center_array_size * 2 + blockDim.x * dims];
+    double * new_centers = &s[center_array_size];
+    double * my_input_cache = &s[center_array_size * 2 + threadIdx.x * dims];
+    //double * my_input_cache = &s[center_array_size + threadIdx.x * dims];
+    int * n_points_local = (int*)&s[center_array_size * 2 + blockDim.x * dims];
     int my_global_tid = threadIdx.x + blockIdx.x * blockDim.x;
     int my_start_point = my_global_tid * work_per_thread;
     int my_end_point = min(n_vals, my_start_point + work_per_thread);
     int dim_interleave = threadIdx.x % dims;
     
     //Prepare shared memory for work to start 
-    /*
+    
     for (int i = threadIdx.x; i < n_cluster; i += blockDim.x){
         n_points_local[i] = 0;
-    }*/
+    }
     for (int i = threadIdx.x; i < center_array_size; i += blockDim.x) {
         centers_local[i] = centers_c[i];
-        //new_centers[i] = 0.0;
+        new_centers[i] = 0.0;
     }
     __syncthreads();
 
@@ -122,13 +122,13 @@ __global__ void new_centers_shared(double *input_vals_c,
         }
         labels_c[i] = owner;
         //Add the point to owner's local copy
-        atomicAdd(&n_points_c[owner], 1);
+        atomicAdd(&n_points_local[owner], 1);
         for (int j = 0; j < dims; j++) {
             int interleaved_index = (dim_interleave + j) % dims;
-            atomicAdd(&temp_centers_c[owner*dims+interleaved_index], my_input_cache[interleaved_index]);
+            atomicAdd(&new_centers[owner*dims+interleaved_index], my_input_cache[interleaved_index]);
         }
     }
-    /*
+    
     __syncthreads();
 
     //Add each block's local center into global
@@ -137,7 +137,7 @@ __global__ void new_centers_shared(double *input_vals_c,
     }
     for (int i = threadIdx.x; i < center_array_size; i += blockDim.x) {
         atomicAdd(&temp_centers_c[i], new_centers[i]);
-    }*/
+    }
 
 }
 
