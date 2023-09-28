@@ -111,7 +111,9 @@ __global__ void new_centers_shared(double *input_vals_c,
             double sum = 0.0;
             for (int k = 0; k < dims; k++) {
                 int interleaved_index = (dim_interleave + k) % dims;
-                sum += pow((my_input_cache[interleaved_index] - centers_local[j*dims+interleaved_index]), 2);
+                double d1 = my_input_cache[interleaved_index] - centers_local[j*dims+interleaved_index];
+                sum += (d1 * d1);
+                //sum += pow((my_input_cache[interleaved_index] - centers_local[j*dims+interleaved_index]), 2);
             }
             if (sum < distance_min) {
                 distance_min = sum;
