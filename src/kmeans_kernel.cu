@@ -18,7 +18,8 @@ __global__ void new_centers(double *input_vals_c,
         for (int i = 0; i < n_cluster; i++){
             sum = 0;
             for (int j = 0; j < dims; j++){
-                sum+=pow((input_vals_c[array_index+j] - centers_c[i*dims+j]), 2);
+                double d1 = input_vals_c[array_index+j] - centers_c[i*dims+j];
+                sum += (d1 * d1);
             }
             //temp = sqrt(sum);
             if (sum < distance){
@@ -113,7 +114,6 @@ __global__ void new_centers_shared(double *input_vals_c,
                 int interleaved_index = (dim_interleave + k) % dims;
                 double d1 = my_input_cache[interleaved_index] - centers_local[j*dims+interleaved_index];
                 sum += (d1 * d1);
-                //sum += pow((my_input_cache[interleaved_index] - centers_local[j*dims+interleaved_index]), 2);
             }
             if (sum < distance_min) {
                 distance_min = sum;
@@ -203,15 +203,15 @@ __global__ void new_centers_shmem(double *input_vals_c,
         }
         */
         double distance = DBL_MAX;
-        //double temp = DBL_MAX;
         double sum;
         for (int i = 0; i < n_cluster; i++){
             sum = 0;
             for (int j = 0; j < dims; j++){
                 int interleaved_index = (dim_interleave + j) % dims;
-                sum+=pow((input_vals_c[array_index+interleaved_index] - centers_s[i*dims+interleaved_index]), 2);
+                double d1 = input_vals_c[array_index+interleaved_index] - centers_s[i*dims+interleaved_index];
+                sum += (d1 * d1);
             }
-            //temp = sqrt(sum);
+            
             if (sum < distance){
                 distance = sum;
                 label = i;

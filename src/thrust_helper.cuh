@@ -32,7 +32,8 @@ struct CentoidAssignFunctor {
         for (int i = 0; i < clusters; i++) {
             double sum = 0.0;
             for (int j = 0; j < dims; j++) {
-                sum += pow(input_vals[index*dims+j] - center_vals[i*dims+j], 2);
+                double d1 = input_vals[index*dims+j] - center_vals[i*dims+j];
+                sum += (d1 * d1);
             }
             if (sum < distance) {
                 distance = sum;

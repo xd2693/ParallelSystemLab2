@@ -10,7 +10,8 @@ double get_distance(kmeans_args *args,
     
     double sum = 0.0;
     for (int i = 0; i < args->dims; i++){
-        sum+= pow(((args->input_vals[input_index+i])-(args->centers[center_index+i])),2);
+        double d1 = args->input_vals[input_index+i]-args->centers[center_index+i];
+        sum += (d1 * d1);
     }
     //return sqrt(sum);
     return sum;
