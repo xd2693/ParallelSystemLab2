@@ -134,8 +134,8 @@ int main(int argc, char **argv){
     //Each thread takes 1 datapoint space for input cache
     //Each block holds entire old centers, and local aggregated centers
     //Each block holds entire local aggregated center owned points
-    int shared_mem_needed = (OPTIMAL_THREADS_MY_SHARED * opts.dims + opts.n_cluster * opts.dims *2) * sizeof(double) + opts.n_cluster * sizeof(int);
-    //int shared_mem_needed = (OPTIMAL_THREADS_MY_SHARED * opts.dims + opts.n_cluster * opts.dims) * sizeof(double);
+    //int shared_mem_needed = (OPTIMAL_THREADS_MY_SHARED * opts.dims + opts.n_cluster * opts.dims *2) * sizeof(double) + opts.n_cluster * sizeof(int);
+    int shared_mem_needed = (OPTIMAL_THREADS_MY_SHARED * opts.dims + opts.n_cluster * opts.dims) * sizeof(double);
     bool can_run_shared_mem = (shared_mem_needed <= SHARED_MEMORY_BYTES);
     
     
@@ -168,7 +168,7 @@ int main(int argc, char **argv){
         process_time.start_timing();
 
         if (can_run_shared_mem) {
-            wrapper_new_centers_shared(input_vals_c, 
+            wrapper_new_centers_shful(input_vals_c, 
                               centers_c,
                               labels_c,
                               opts.dims,
@@ -176,7 +176,6 @@ int main(int argc, char **argv){
                               opts.n_cluster,
                               temp_centers_c,
                               n_points_c,
-                              OPTIMAL_BLOCKS_MY_SHARED,
                               OPTIMAL_THREADS_MY_SHARED,
                               shared_mem_needed);
         }
