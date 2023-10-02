@@ -243,11 +243,11 @@ void wrapper_new_centers_shmem(double *input_vals_c,
                          int    n_cluster,
                          double *temp_centers_c,
                          int *n_points_c,
-                         int threads,
-                         int shared_memory_needed)
+                         int threads)
 {
+    int shared_size_needed = sizeof(double) * dims * n_cluster;
     int blocks = (n_vals + threads -1) / threads;
-    new_centers_shmem<<<blocks, threads, shared_memory_needed>>>
+    new_centers_shmem<<<blocks, threads, shared_size_needed>>>
                     (input_vals_c,
                      centers_c,
                      labels_c,
@@ -324,11 +324,11 @@ void wrapper_new_centers_shful(double *input_vals_c,
                          int    n_cluster,
                          double *temp_centers_c,
                          int *n_points_c,
-                         int threads)
+                         int threads,
+                         int shared_memory_needed)
 {
-    int shared_size_needed = sizeof(double) * dims * n_cluster;
     int blocks = (n_vals + threads -1) / threads;
-    new_centers_shful<<<blocks, threads, shared_size_needed>>>
+    new_centers_shful<<<blocks, threads, shared_memory_needed>>>
                     (input_vals_c,
                      centers_c,
                      labels_c,
