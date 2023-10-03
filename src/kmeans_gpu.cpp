@@ -5,7 +5,7 @@
 #include <math.h>
 #include "kmeans_kernel.cuh"
 
-#define THREAD_PER_BLOCK 128
+#define THREAD_PER_BLOCK 32
 
 static unsigned long int next = 1;
 static unsigned long kmeans_rmax = 32767;
@@ -22,12 +22,9 @@ void random_centers(int seed, int n_cluster, int n_vals, int dims, double *input
     int in=0;
     for (int i=0; i<n_cluster; i++){
         int index = (kmeans_rand() % n_vals);
-
         int my_index= index * dims;
-        //printf("\n index= %d\n",index);
         for (int j=0; j< dims; j++){
             centers[in] = input_vals[my_index+j];
-            //printf("\t centers= %.12f",args->centers[in]);
             in++;
         }
         
@@ -54,7 +51,6 @@ void output(int n_cluster, int n_vals, int dims, double *centers, int *labels, b
 bool test_converge(double *centers, double *old_centers, double threshold, int n_cluster, int dims){
 
     for (int i = 0; i < n_cluster * dims; i++){
-        //if (old_centers[i] - centers[i] > threshold || old_centers[i] - centers[i] < threshold *(-1)){
         if ( fabs(old_centers[i] - centers[i]) > threshold) {   
             return false;
         }
@@ -120,18 +116,15 @@ int main(int argc, char **argv){
     int *labels_c;
     int *n_points_c;//points count for each centroids
     double *old_centers_c, *temp_centers_c;
-    int threads = 128, blocks = 40;
     
     
     struct time_device total_time;//total time for data transfer and iteration
     struct time_device mem_time;//data transfer time
-    struct time_device process_time;
+
     cudaEventCreate(&total_time.start);
     cudaEventCreate(&total_time.stop);
     cudaEventCreate(&mem_time.start);
     cudaEventCreate(&mem_time.stop);
-    cudaEventCreate(&process_time.start);
-    cudaEventCreate(&process_time.stop);
 
 
     cudaMalloc((double**)&input_vals_c, input_size);
@@ -156,7 +149,7 @@ int main(int argc, char **argv){
         cudaMemset(n_points_c, 0, opts.n_cluster*sizeof(int));
 
         mem_time.stop_timing();
-        process_time.start_timing();
+    
 
         //compute distance between input and each centroid, select the closest centroid,
         //summing input points on every dimension by centroids group for calculating new centroids later
@@ -171,19 +164,10 @@ int main(int argc, char **argv){
                           (n_vals+THREAD_PER_BLOCK-1)/THREAD_PER_BLOCK,
                           THREAD_PER_BLOCK);
         
-        /*wrapper_new_centers_shared(input_vals_c, 
-                          centers_c,
-                          labels_c,
-                          opts.dims,
-                          n_vals,
-                          opts.n_cluster,
-                          temp_centers_c,
-                          n_points_c,
-                          blocks,
-                          threads);*/
+        
 
         cudaDeviceSynchronize();
-        process_time.stop_timing();
+    
         
         
         mem_time.start_timing();
@@ -218,11 +202,9 @@ int main(int argc, char **argv){
     
     total_time.stop_timing();
 
-    printf("Running with %d blocks %d threads\n", blocks, threads);
     printf("%d,%lf\n", iter, (double)(total_time.time/(iter)));
-    printf("data transter time: %lf\n", mem_time.time);
-    printf("data transfer time fraction: %.2lf%%\n", mem_time.time/total_time.time*100);
-    printf("Pure process time per step %lf\n", (double)(process_time.time/iter));
+    //printf("data transter time: %lf\n", mem_time.time);
+    //printf("data transfer time fraction: %.2lf%%\n", mem_time.time/total_time.time*100);
 
     output(opts.n_cluster, n_vals, opts.dims, centers, labels, opts.c_flag);
 

@@ -5,7 +5,7 @@
 #include <math.h>
 #include "kmeans_kernel.cuh"
 
-#define THREAD_PER_BLOCK 128
+#define THREAD_PER_BLOCK 32
 
 static unsigned long int next = 1;
 static unsigned long kmeans_rmax = 32767;
@@ -118,18 +118,14 @@ int main(int argc, char **argv){
     int *labels_c;
     int *n_points_c;//points count for each centroids
     double *old_centers_c, *temp_centers_c;
-    int threads = 128, blocks = 40;
     
     
     struct time_device total_time;//total time for data transfer and iteration
     struct time_device mem_time;//data transfer time
-    struct time_device process_time;
     cudaEventCreate(&total_time.start);
     cudaEventCreate(&total_time.stop);
     cudaEventCreate(&mem_time.start);
     cudaEventCreate(&mem_time.stop);
-    cudaEventCreate(&process_time.start);
-    cudaEventCreate(&process_time.stop);
     
     
     //set banksize to 8 bytes
@@ -160,7 +156,6 @@ int main(int argc, char **argv){
 
         mem_time.stop_timing();
           
-        process_time.start_timing();
         
         wrapper_new_centers_shmem(input_vals_c, 
                           centers_c,
@@ -173,7 +168,6 @@ int main(int argc, char **argv){
                           THREAD_PER_BLOCK);
 
         cudaDeviceSynchronize();
-        process_time.stop_timing();
         
         
         mem_time.start_timing();
@@ -206,11 +200,9 @@ int main(int argc, char **argv){
     
     total_time.stop_timing();
 
-    printf("Running with %d blocks %d threads\n", blocks, threads);
     printf("%d,%lf\n", iter, (double)(total_time.time/(iter)));
-    printf("data transter time: %lf\n", mem_time.time);
-    printf("data transfer time fraction: %.2lf%%\n", mem_time.time/total_time.time*100);
-    printf("Pure process time per step %lf\n", (double)(process_time.time/iter));
+    //printf("data transter time: %lf\n", mem_time.time);
+    //printf("data transfer time fraction: %.2lf%%\n", mem_time.time/total_time.time*100);
 
     output(opts.n_cluster, n_vals, opts.dims, centers, labels, opts.c_flag);
 
