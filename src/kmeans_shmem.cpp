@@ -22,12 +22,10 @@ void random_centers(int seed, int n_cluster, int n_vals, int dims, double *input
     int in=0;
     for (int i=0; i<n_cluster; i++){
         int index = (kmeans_rand() % n_vals);
-
         int my_index= index * dims;
-        //printf("\n index= %d\n",index);
+        
         for (int j=0; j< dims; j++){
             centers[in] = input_vals[my_index+j];
-            //printf("\t centers= %.12f",args->centers[in]);
             in++;
         }
         
