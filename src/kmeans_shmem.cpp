@@ -204,4 +204,17 @@ int main(int argc, char **argv){
 
     output(opts.n_cluster, n_vals, opts.dims, centers, labels, opts.c_flag);
 
+    free(input_vals);
+    free(centers);
+    free(labels);
+    free(old_centers);
+    free(temp_centers);
+    free(n_points);
+    cudaFree(input_vals_c);
+    cudaFree(centers_c);
+    cudaFree(labels_c);
+    cudaFree(n_points_c);
+    cudaFree(old_centers_c);
+    cudaFree(temp_centers_c);
+
 }

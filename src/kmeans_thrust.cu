@@ -208,4 +208,11 @@ int main(int argc, char **argv){
     
     output(opts.n_cluster, n_vals, opts.dims, centers, labels, opts.c_flag);
 
+    free(input_vals);
+    free(centers);
+    free(labels);
+    free(old_centers);
+    free(temp_centers);
+    free(n_points);
+
 }
