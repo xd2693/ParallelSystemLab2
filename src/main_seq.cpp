@@ -32,7 +32,7 @@ int main(int argc, char **argv){
 
     //End timer and print out elapsed
     auto end = std::chrono::high_resolution_clock::now();
-    auto diff = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
     printf("%d,%lf\n", iter, ((double)diff.count()/(iter)));
 

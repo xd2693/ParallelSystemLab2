@@ -127,8 +127,7 @@ int main(int argc, char **argv){
     //Each thread takes 1 datapoint space for input cache
     //Each block holds entire old centers, and local aggregated centers
     //Each block holds entire local aggregated center owned points
-    //int shared_mem_needed = (OPTIMAL_THREADS_MY_SHARED * opts.dims + opts.n_cluster * opts.dims *2) * sizeof(double) + opts.n_cluster * sizeof(int);
-    int shared_mem_needed = (OPTIMAL_THREADS_MY_SHARED * opts.dims + opts.n_cluster * opts.dims) * sizeof(double);
+    int shared_mem_needed = (THREAD_PER_BLOCK * opts.dims + opts.n_cluster * opts.dims) * sizeof(double);
     bool can_run_shared_mem = (shared_mem_needed <= SHARED_MEMORY_BYTES);
     
     
